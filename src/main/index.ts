@@ -4,6 +4,7 @@ import { is } from '@electron-toolkit/utils'
 import { registerSystemIPC } from './ipc/system'
 import { registerHardwareIPC } from './ipc/hardware'
 import { registerCleanerIPC } from './ipc/cleaner'
+import { registerBoosterIPC } from './ipc/booster'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -62,6 +63,7 @@ app.whenReady().then(() => {
   registerSystemIPC()
   registerHardwareIPC()
   registerCleanerIPC()
+  registerBoosterIPC()
   createWindow()
 })
 

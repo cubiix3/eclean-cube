@@ -40,6 +40,21 @@ const api = {
     openFolder: (filePath: string) => ipcRenderer.send('cleaner:openFolder', filePath),
     deleteFile: (filePath: string) => ipcRenderer.invoke('cleaner:deleteFile', filePath),
     openFileDialog: () => ipcRenderer.invoke('cleaner:openFileDialog')
+  },
+  booster: {
+    getStartupApps: () => ipcRenderer.invoke('booster:getStartupApps'),
+    setStartupEnabled: (name: string, command: string, location: string, enabled: boolean) =>
+      ipcRenderer.invoke('booster:setStartupEnabled', name, command, location, enabled),
+    getServices: () => ipcRenderer.invoke('booster:getServices'),
+    setServiceStartType: (name: string, startType: string) =>
+      ipcRenderer.invoke('booster:setServiceStartType', name, startType),
+    getCurrentDNS: () => ipcRenderer.invoke('booster:getCurrentDNS'),
+    setDNS: (interfaceIndex: number, primary: string, secondary: string) =>
+      ipcRenderer.invoke('booster:setDNS', interfaceIndex, primary, secondary),
+    pingDNS: (server: string) => ipcRenderer.invoke('booster:pingDNS', server),
+    getScheduledTasks: () => ipcRenderer.invoke('booster:getScheduledTasks'),
+    setTaskEnabled: (taskName: string, taskPath: string, enabled: boolean) =>
+      ipcRenderer.invoke('booster:setTaskEnabled', taskName, taskPath, enabled)
   }
 }
 

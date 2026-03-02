@@ -153,11 +153,59 @@ interface CleanerAPI {
   openFileDialog: () => Promise<string[]>
 }
 
+// ──────────────────────────────────────────────
+// Booster Types
+// ──────────────────────────────────────────────
+
+interface BoosterStartupApp {
+  name: string
+  command: string
+  location: string
+  user: string
+  enabled: boolean
+  publisher: string
+  impact: 'High' | 'Medium' | 'Low'
+}
+
+interface BoosterWindowsService {
+  name: string
+  displayName: string
+  status: string
+  startType: string
+  safeToDisable: boolean
+}
+
+interface BoosterDNSConfig {
+  interfaceAlias: string
+  interfaceIndex: number
+  serverAddresses: string[]
+}
+
+interface BoosterScheduledTask {
+  taskName: string
+  taskPath: string
+  state: string
+  description: string
+}
+
+interface BoosterAPI {
+  getStartupApps: () => Promise<BoosterStartupApp[]>
+  setStartupEnabled: (name: string, command: string, location: string, enabled: boolean) => Promise<void>
+  getServices: () => Promise<BoosterWindowsService[]>
+  setServiceStartType: (name: string, startType: string) => Promise<void>
+  getCurrentDNS: () => Promise<BoosterDNSConfig[]>
+  setDNS: (interfaceIndex: number, primary: string, secondary: string) => Promise<void>
+  pingDNS: (server: string) => Promise<number>
+  getScheduledTasks: () => Promise<BoosterScheduledTask[]>
+  setTaskEnabled: (taskName: string, taskPath: string, enabled: boolean) => Promise<void>
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
   hardware: HardwareAPI
   cleaner: CleanerAPI
+  booster: BoosterAPI
 }
 
 declare global {
