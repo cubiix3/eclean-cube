@@ -5,12 +5,14 @@ import JunkCleanup from './JunkCleanup'
 import LargeFiles from './LargeFiles'
 import FileShredder from './FileShredder'
 import DuplicateFinder from './DuplicateFinder'
+import PrivacyEraser from './PrivacyEraser'
 
 const TABS = [
   { key: 'junk' as const, label: 'Junk Cleanup' },
   { key: 'large' as const, label: 'Large Files' },
   { key: 'shredder' as const, label: 'File Shredder' },
-  { key: 'duplicates' as const, label: 'Duplicates' }
+  { key: 'duplicates' as const, label: 'Duplicates' },
+  { key: 'privacy' as const, label: 'Privacy' }
 ]
 
 export default function CleanerPage() {
@@ -103,6 +105,18 @@ export default function CleanerPage() {
             transition={{ duration: 0.2 }}
           >
             <DuplicateFinder />
+          </motion.div>
+        )}
+
+        {activeTab === 'privacy' && (
+          <motion.div
+            key="privacy"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <PrivacyEraser />
           </motion.div>
         )}
       </AnimatePresence>
