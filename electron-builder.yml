@@ -1,0 +1,19 @@
+appId: com.eclean.app
+productName: eclean
+copyright: Copyright © 2026 eclean
+
+directories:
+  buildResources: build
+  output: release
+
+files:
+  - out/**/*
+
+win:
+  icon: build/icon.ico
+  target:
+    - target: portable
+      arch:
+        - x64
+  artifactName: ${productName}-${version}.${ext}
+  signAndEditExecutable: false
