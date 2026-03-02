@@ -3,6 +3,7 @@ import { AnimatePresence } from 'framer-motion'
 import Titlebar from './components/Titlebar'
 import Sidebar from './components/Sidebar'
 import PageTransition from './components/PageTransition'
+import DashboardPage from './modules/dashboard/DashboardPage'
 
 // Placeholder pages
 function OptimizerPage() {
@@ -20,9 +21,6 @@ function BoosterPage() {
 function UninstallerPage() {
   return <PageTransition><div className="text-white text-xl">Uninstaller</div></PageTransition>
 }
-function DashboardPage() {
-  return <PageTransition><div className="text-white text-xl">Dashboard - Coming Soon</div></PageTransition>
-}
 
 export default function App() {
   return (
@@ -34,7 +32,7 @@ export default function App() {
           <main className="flex-1 overflow-auto p-6">
             <AnimatePresence mode="wait">
               <Routes>
-                <Route path="/" element={<DashboardPage />} />
+                <Route path="/" element={<PageTransition><DashboardPage /></PageTransition>} />
                 <Route path="/optimizer" element={<OptimizerPage />} />
                 <Route path="/cleaner" element={<CleanerPage />} />
                 <Route path="/hardware" element={<HardwarePage />} />
