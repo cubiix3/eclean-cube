@@ -18,6 +18,14 @@ const api = {
     onSensorData: (callback: (data: any) => void) => {
       ipcRenderer.on('system:sensorData', (_event, data) => callback(data))
     }
+  },
+  hardware: {
+    getInfo: () => ipcRenderer.invoke('hardware:getInfo'),
+    startSensors: () => ipcRenderer.send('hardware:startSensors'),
+    stopSensors: () => ipcRenderer.send('hardware:stopSensors'),
+    onSensorData: (callback: (data: any) => void) => {
+      ipcRenderer.on('hardware:sensorData', (_event, data) => callback(data))
+    }
   }
 }
 
