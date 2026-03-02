@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
+import { registerSystemIPC } from './ipc/system'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -56,6 +57,7 @@ ipcMain.on('window:close', () => mainWindow?.close())
 ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized())
 
 app.whenReady().then(() => {
+  registerSystemIPC()
   createWindow()
 })
 

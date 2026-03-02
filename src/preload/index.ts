@@ -10,6 +10,14 @@ const api = {
       ipcRenderer.on('window:maximized', () => callback(true))
       ipcRenderer.on('window:unmaximized', () => callback(false))
     }
+  },
+  system: {
+    getOverview: () => ipcRenderer.invoke('system:getOverview'),
+    startSensorStream: () => ipcRenderer.send('system:startSensorStream'),
+    stopSensorStream: () => ipcRenderer.send('system:stopSensorStream'),
+    onSensorData: (callback: (data: any) => void) => {
+      ipcRenderer.on('system:sensorData', (_event, data) => callback(data))
+    }
   }
 }
 
