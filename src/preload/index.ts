@@ -54,7 +54,8 @@ const api = {
     pingDNS: (server: string) => ipcRenderer.invoke('booster:pingDNS', server),
     getScheduledTasks: () => ipcRenderer.invoke('booster:getScheduledTasks'),
     setTaskEnabled: (taskName: string, taskPath: string, enabled: boolean) =>
-      ipcRenderer.invoke('booster:setTaskEnabled', taskName, taskPath, enabled)
+      ipcRenderer.invoke('booster:setTaskEnabled', taskName, taskPath, enabled),
+    getBootTimes: () => ipcRenderer.invoke('booster:getBootTimes')
   },
   optimizer: {
     getTweaks: () => ipcRenderer.invoke('optimizer:getTweaks'),
@@ -92,6 +93,22 @@ const api = {
     get: () => ipcRenderer.invoke('settings:get'),
     update: (partial: any) => ipcRenderer.invoke('settings:update', partial),
     reset: () => ipcRenderer.invoke('settings:reset')
+  },
+  duplicate: {
+    find: (directory: string, minSizeMB: number) =>
+      ipcRenderer.invoke('duplicate:find', directory, minSizeMB),
+    delete: (paths: string[]) => ipcRenderer.invoke('duplicate:delete', paths),
+    getDrives: () => ipcRenderer.invoke('duplicate:getDrives'),
+    browseDirectory: () => ipcRenderer.invoke('duplicate:browseDirectory')
+  },
+  network: {
+    getStats: () => ipcRenderer.invoke('network:getStats'),
+    getConnectionInfo: () => ipcRenderer.invoke('network:getConnectionInfo'),
+    startMonitor: () => ipcRenderer.send('network:startMonitor'),
+    stopMonitor: () => ipcRenderer.send('network:stopMonitor'),
+    onStats: (callback: (data: any) => void) => {
+      ipcRenderer.on('network:stats', (_event, data) => callback(data))
+    }
   },
   tray: {
     updateHealthScore: (score: number) => ipcRenderer.send('tray:updateHealthScore', score),

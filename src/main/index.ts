@@ -9,6 +9,8 @@ import { registerOptimizerIPC } from './ipc/optimizer'
 import { registerUninstallerIPC } from './ipc/uninstaller'
 import { registerProcessIPC } from './ipc/process'
 import { registerSettingsIPC } from './ipc/settings'
+import { registerDuplicateIPC } from './ipc/duplicate'
+import { registerNetworkIPC } from './ipc/network'
 import { getSettings } from './services/settingsService'
 
 let mainWindow: BrowserWindow | null = null
@@ -189,6 +191,8 @@ app.whenReady().then(() => {
   registerUninstallerIPC()
   registerProcessIPC()
   registerSettingsIPC()
+  registerDuplicateIPC()
+  registerNetworkIPC()
   createWindow()
   createTray()
 })

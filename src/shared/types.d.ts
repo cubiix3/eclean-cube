@@ -188,6 +188,11 @@ interface BoosterScheduledTask {
   description: string
 }
 
+interface BoosterBootTimeEntry {
+  date: string
+  bootDurationSeconds: number
+}
+
 interface BoosterAPI {
   getStartupApps: () => Promise<BoosterStartupApp[]>
   setStartupEnabled: (name: string, command: string, location: string, enabled: boolean) => Promise<void>
@@ -198,6 +203,7 @@ interface BoosterAPI {
   pingDNS: (server: string) => Promise<number>
   getScheduledTasks: () => Promise<BoosterScheduledTask[]>
   setTaskEnabled: (taskName: string, taskPath: string, enabled: boolean) => Promise<void>
+  getBootTimes: () => Promise<BoosterBootTimeEntry[]>
 }
 
 // ──────────────────────────────────────────────
@@ -352,6 +358,57 @@ interface ProcessAPI {
 }
 
 // ──────────────────────────────────────────────
+// Duplicate Finder Types
+// ──────────────────────────────────────────────
+
+interface DuplicateFile {
+  path: string
+  modified: string
+}
+
+interface DuplicateGroup {
+  name: string
+  size: number
+  files: DuplicateFile[]
+}
+
+interface DuplicateDeleteResult {
+  deleted: number
+  errors: string[]
+}
+
+interface DuplicateAPI {
+  find: (directory: string, minSizeMB: number) => Promise<DuplicateGroup[]>
+  delete: (paths: string[]) => Promise<DuplicateDeleteResult>
+  getDrives: () => Promise<string[]>
+  browseDirectory: () => Promise<string | null>
+}
+
+// ──────────────────────────────────────────────
+// Network Monitor Types
+// ──────────────────────────────────────────────
+
+interface NetworkAdapterStats {
+  name: string
+  bytesReceivedPerSec: number
+  bytesSentPerSec: number
+  currentBandwidth: number
+}
+
+interface NetworkConnectionInfo {
+  connections: number
+  publicIP: string
+}
+
+interface NetworkAPI {
+  getStats: () => Promise<NetworkAdapterStats[]>
+  getConnectionInfo: () => Promise<NetworkConnectionInfo>
+  startMonitor: () => void
+  stopMonitor: () => void
+  onStats: (callback: (data: NetworkAdapterStats[]) => void) => void
+}
+
+// ──────────────────────────────────────────────
 // Settings Types
 // ──────────────────────────────────────────────
 
@@ -401,6 +458,8 @@ interface ElectronAPI {
   uninstaller: UninstallerAPI
   process: ProcessAPI
   settings: SettingsAPI
+  duplicate: DuplicateAPI
+  network: NetworkAPI
   tray: TrayAPI
 }
 

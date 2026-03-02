@@ -8,7 +8,8 @@ import {
   setDNS,
   pingDNS,
   getScheduledTasks,
-  setTaskEnabled
+  setTaskEnabled,
+  getBootTimes
 } from '../services/boosterService'
 
 export function registerBoosterIPC(): void {
@@ -63,4 +64,9 @@ export function registerBoosterIPC(): void {
       await setTaskEnabled(taskName, taskPath, enabled)
     }
   )
+
+  // Boot Time Tracker
+  ipcMain.handle('booster:getBootTimes', async () => {
+    return await getBootTimes()
+  })
 }

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type BoosterTab = 'startup' | 'services' | 'dns' | 'tasks'
+export type BoosterTab = 'startup' | 'services' | 'dns' | 'tasks' | 'boottime'
 
 interface DNSPreset {
   name: string

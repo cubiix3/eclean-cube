@@ -4,12 +4,14 @@ import StartupApps from './StartupApps'
 import ServicesManager from './ServicesManager'
 import DnsOptimizer from './DnsOptimizer'
 import TaskScheduler from './TaskScheduler'
+import BootTracker from './BootTracker'
 
 const TABS: { key: BoosterTab; label: string }[] = [
   { key: 'startup', label: 'Startup Apps' },
   { key: 'services', label: 'Services' },
   { key: 'dns', label: 'DNS Optimizer' },
-  { key: 'tasks', label: 'Task Scheduler' }
+  { key: 'tasks', label: 'Task Scheduler' },
+  { key: 'boottime', label: 'Boot Time' }
 ]
 
 export default function BoosterPage() {
@@ -98,6 +100,18 @@ export default function BoosterPage() {
             transition={{ duration: 0.2 }}
           >
             <TaskScheduler />
+          </motion.div>
+        )}
+
+        {activeTab === 'boottime' && (
+          <motion.div
+            key="boottime"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <BootTracker />
           </motion.div>
         )}
       </AnimatePresence>
