@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-export type ModuleId = 'dashboard' | 'optimizer' | 'cleaner' | 'hardware' | 'booster' | 'uninstaller' | 'process' | 'settings'
+export type ModuleId = 'dashboard' | 'optimizer' | 'cleaner' | 'hardware' | 'booster' | 'uninstaller' | 'process' | 'benchmark' | 'settings'
 
 interface NavigationState {
   activeModule: ModuleId

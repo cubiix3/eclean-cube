@@ -410,6 +410,64 @@ interface NetworkAPI {
 }
 
 // ──────────────────────────────────────────────
+// Benchmark Types
+// ──────────────────────────────────────────────
+
+interface BenchmarkCPUResult {
+  score: number
+  timeMs: number
+}
+
+interface BenchmarkRAMResult {
+  score: number
+  timeMs: number
+}
+
+interface BenchmarkDiskResult {
+  score: number
+  writeMs: number
+  readMs: number
+  writeMBs: number
+  readMBs: number
+}
+
+interface BenchmarkFullResult {
+  cpu: BenchmarkCPUResult
+  ram: BenchmarkRAMResult
+  disk: BenchmarkDiskResult
+  totalScore: number
+  timestamp: number
+}
+
+interface BenchmarkAPI {
+  cpu: () => Promise<BenchmarkCPUResult>
+  ram: () => Promise<BenchmarkRAMResult>
+  disk: () => Promise<BenchmarkDiskResult>
+  full: () => Promise<BenchmarkFullResult>
+  history: () => Promise<BenchmarkFullResult[]>
+}
+
+// ──────────────────────────────────────────────
+// Gaming Mode Types
+// ──────────────────────────────────────────────
+
+interface GamingModeResult {
+  killedProcesses: number
+  freedRAM: number
+  powerPlan: string
+}
+
+interface GamingDeactivateResult {
+  restored: boolean
+}
+
+interface GamingAPI {
+  activate: () => Promise<GamingModeResult>
+  deactivate: () => Promise<GamingDeactivateResult>
+  isActive: () => Promise<boolean>
+}
+
+// ──────────────────────────────────────────────
 // Settings Types
 // ──────────────────────────────────────────────
 
@@ -458,6 +516,8 @@ interface ElectronAPI {
   optimizer: OptimizerAPI
   uninstaller: UninstallerAPI
   process: ProcessAPI
+  gaming: GamingAPI
+  benchmark: BenchmarkAPI
   settings: SettingsAPI
   duplicate: DuplicateAPI
   network: NetworkAPI

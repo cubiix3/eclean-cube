@@ -7,6 +7,7 @@ import ParticleBackground from './components/ParticleBackground'
 import PageTransition from './components/PageTransition'
 import ToastContainer from './components/ToastContainer'
 import ErrorBoundary from './components/ErrorBoundary'
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 
 const DashboardPage = lazy(() => import('./modules/dashboard/DashboardPage'))
 const HardwarePage = lazy(() => import('./modules/hardware/HardwarePage'))
@@ -15,6 +16,7 @@ const BoosterPage = lazy(() => import('./modules/booster/BoosterPage'))
 const OptimizerPage = lazy(() => import('./modules/optimizer/OptimizerPage'))
 const UninstallerPage = lazy(() => import('./modules/uninstaller/UninstallerPage'))
 const ProcessPage = lazy(() => import('./modules/process/ProcessPage'))
+const BenchmarkPage = lazy(() => import('./modules/benchmark/BenchmarkPage'))
 const SettingsPage = lazy(() => import('./modules/settings/SettingsPage'))
 
 function PageLoader() {
@@ -25,35 +27,44 @@ function PageLoader() {
   )
 }
 
+function AppContent() {
+  useKeyboardShortcuts()
+
+  return (
+    <div className="flex h-screen w-screen bg-[#0a0a0f]">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Titlebar />
+        <main className="flex-1 overflow-auto p-6 relative">
+          <ParticleBackground />
+          <div className="relative z-10">
+            <Suspense fallback={<PageLoader />}>
+              <AnimatePresence mode="wait">
+                <Routes>
+                  <Route path="/" element={<PageTransition><ErrorBoundary><DashboardPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/optimizer" element={<PageTransition><ErrorBoundary><OptimizerPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/cleaner" element={<PageTransition><ErrorBoundary><CleanerPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/hardware" element={<PageTransition><ErrorBoundary><HardwarePage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/booster" element={<PageTransition><ErrorBoundary><BoosterPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/uninstaller" element={<PageTransition><ErrorBoundary><UninstallerPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/process" element={<PageTransition><ErrorBoundary><ProcessPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/benchmark" element={<PageTransition><ErrorBoundary><BenchmarkPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/settings" element={<PageTransition><ErrorBoundary><SettingsPage /></ErrorBoundary></PageTransition>} />
+                </Routes>
+              </AnimatePresence>
+            </Suspense>
+          </div>
+        </main>
+      </div>
+      <ToastContainer />
+    </div>
+  )
+}
+
 export default function App() {
   return (
     <HashRouter>
-      <div className="flex h-screen w-screen bg-[#0a0a0f]">
-        <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <Titlebar />
-          <main className="flex-1 overflow-auto p-6 relative">
-            <ParticleBackground />
-            <div className="relative z-10">
-              <Suspense fallback={<PageLoader />}>
-                <AnimatePresence mode="wait">
-                  <Routes>
-                    <Route path="/" element={<PageTransition><ErrorBoundary><DashboardPage /></ErrorBoundary></PageTransition>} />
-                    <Route path="/optimizer" element={<PageTransition><ErrorBoundary><OptimizerPage /></ErrorBoundary></PageTransition>} />
-                    <Route path="/cleaner" element={<PageTransition><ErrorBoundary><CleanerPage /></ErrorBoundary></PageTransition>} />
-                    <Route path="/hardware" element={<PageTransition><ErrorBoundary><HardwarePage /></ErrorBoundary></PageTransition>} />
-                    <Route path="/booster" element={<PageTransition><ErrorBoundary><BoosterPage /></ErrorBoundary></PageTransition>} />
-                    <Route path="/uninstaller" element={<PageTransition><ErrorBoundary><UninstallerPage /></ErrorBoundary></PageTransition>} />
-                    <Route path="/process" element={<PageTransition><ErrorBoundary><ProcessPage /></ErrorBoundary></PageTransition>} />
-                    <Route path="/settings" element={<PageTransition><ErrorBoundary><SettingsPage /></ErrorBoundary></PageTransition>} />
-                  </Routes>
-                </AnimatePresence>
-              </Suspense>
-            </div>
-          </main>
-        </div>
-        <ToastContainer />
-      </div>
+      <AppContent />
     </HashRouter>
   )
 }

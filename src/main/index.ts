@@ -11,6 +11,8 @@ import { registerProcessIPC } from './ipc/process'
 import { registerSettingsIPC } from './ipc/settings'
 import { registerDuplicateIPC } from './ipc/duplicate'
 import { registerNetworkIPC } from './ipc/network'
+import { registerGamingIPC } from './ipc/gaming'
+import { registerBenchmarkIPC } from './ipc/benchmark'
 import { getSettings } from './services/settingsService'
 import { closePowerShell } from './services/powershell'
 
@@ -214,6 +216,8 @@ app.whenReady().then(() => {
   registerSettingsIPC()
   registerDuplicateIPC()
   registerNetworkIPC()
+  registerGamingIPC()
+  registerBenchmarkIPC()
   createWindow()
   createTray()
 })

@@ -11,7 +11,17 @@ import {
   ScanLine,
   ShieldCheck,
   AlertTriangle,
-  Clock
+  Clock,
+  Keyboard,
+  LayoutDashboard,
+  Sliders,
+  Trash2,
+  Cpu,
+  Rocket,
+  PackageX,
+  Activity,
+  Gauge,
+  Settings
 } from 'lucide-react'
 import { useSettingsStore } from '@/stores/settingsStore'
 
@@ -333,6 +343,51 @@ export default function SettingsPage() {
           </SectionCard>
         </motion.div>
       </div>
+
+      {/* Keyboard Shortcuts */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Keyboard className="w-4 h-4 text-white/50" />
+            <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Keyboard Shortcuts</h3>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { key: 'Ctrl+1', label: 'Dashboard', icon: LayoutDashboard },
+              { key: 'Ctrl+2', label: 'Optimizer', icon: Sliders },
+              { key: 'Ctrl+3', label: 'Cleaner', icon: Trash2 },
+              { key: 'Ctrl+4', label: 'Your PC', icon: Cpu },
+              { key: 'Ctrl+5', label: 'Booster', icon: Rocket },
+              { key: 'Ctrl+6', label: 'Uninstaller', icon: PackageX },
+              { key: 'Ctrl+7', label: 'Processes', icon: Activity },
+              { key: 'Ctrl+8', label: 'Benchmark', icon: Gauge },
+              { key: 'Ctrl+9', label: 'Settings', icon: Settings }
+            ].map((shortcut) => {
+              const Icon = shortcut.icon
+              return (
+                <div
+                  key={shortcut.key}
+                  className="flex items-center gap-3 rounded-lg bg-white/[0.03] p-3"
+                >
+                  <div className="w-7 h-7 rounded-md bg-white/5 flex items-center justify-center shrink-0">
+                    <Icon className="w-3.5 h-3.5 text-white/40" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-white/60 truncate">{shortcut.label}</p>
+                  </div>
+                  <kbd className="shrink-0 px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] text-white/40 font-mono">
+                    {shortcut.key}
+                  </kbd>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </motion.div>
     </div>
   )
 }

@@ -111,6 +111,18 @@ const api = {
       ipcRenderer.on('network:stats', (_event, data) => callback(data))
     }
   },
+  gaming: {
+    activate: () => ipcRenderer.invoke('gaming:activate'),
+    deactivate: () => ipcRenderer.invoke('gaming:deactivate'),
+    isActive: () => ipcRenderer.invoke('gaming:isActive')
+  },
+  benchmark: {
+    cpu: () => ipcRenderer.invoke('benchmark:cpu'),
+    ram: () => ipcRenderer.invoke('benchmark:ram'),
+    disk: () => ipcRenderer.invoke('benchmark:disk'),
+    full: () => ipcRenderer.invoke('benchmark:full'),
+    history: () => ipcRenderer.invoke('benchmark:history')
+  },
   tray: {
     updateHealthScore: (score: number) => ipcRenderer.send('tray:updateHealthScore', score),
     onQuickClean: (callback: () => void) => {

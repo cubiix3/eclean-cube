@@ -6,6 +6,7 @@ import {
   Rocket,
   PackageX,
   Activity,
+  Gauge,
   Settings,
   type LucideIcon
 } from 'lucide-react'
@@ -26,7 +27,8 @@ const navItems: NavItem[] = [
   { id: 'hardware', icon: Cpu, label: 'Your PC', path: '/hardware' },
   { id: 'booster', icon: Rocket, label: 'Booster', path: '/booster' },
   { id: 'uninstaller', icon: PackageX, label: 'Uninstaller', path: '/uninstaller' },
-  { id: 'process', icon: Activity, label: 'Processes', path: '/process' }
+  { id: 'process', icon: Activity, label: 'Processes', path: '/process' },
+  { id: 'benchmark', icon: Gauge, label: 'Benchmark', path: '/benchmark' }
 ]
 
 const settingsItem: NavItem = {

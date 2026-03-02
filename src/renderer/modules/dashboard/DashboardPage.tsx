@@ -3,6 +3,7 @@ import { useDashboardStore } from '@/stores/dashboardStore'
 import HealthScore from './HealthScore'
 import SystemOverview from './SystemOverview'
 import QuickActions from './QuickActions'
+import GamingMode from './GamingMode'
 import LiveCharts from './LiveCharts'
 import RecentActivity from './RecentActivity'
 
@@ -42,6 +43,7 @@ export default function DashboardPage() {
         </div>
         <div className="col-span-8 space-y-6">
           <QuickActions />
+          <GamingMode />
           <SystemOverview data={overview} isLoading={isLoading} />
         </div>
       </div>
