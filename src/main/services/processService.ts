@@ -1,4 +1,5 @@
 import { runPowerShell } from './powershell'
+import { sanitizeNumber } from './sanitize'
 
 export interface ProcessInfo {
   pid: number
@@ -46,7 +47,8 @@ export async function getProcesses(): Promise<ProcessInfo[]> {
 
 export async function killProcess(pid: number): Promise<{ success: boolean; error?: string }> {
   try {
-    await runPowerShell(`Stop-Process -Id ${pid} -Force`)
+    const safePid = sanitizeNumber(pid)
+    await runPowerShell(`Stop-Process -Id ${safePid} -Force`)
     return { success: true }
   } catch (err: any) {
     return { success: false, error: err?.message || 'Failed to kill process' }

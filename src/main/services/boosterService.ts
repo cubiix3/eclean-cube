@@ -1,4 +1,5 @@
 import { runPowerShell, runPowerShellJSON } from './powershell'
+import { sanitizeForPS, sanitizeNumber } from './sanitize'
 
 // ──────────────────────────────────────────────
 // Startup Apps
@@ -151,8 +152,8 @@ export async function setStartupEnabled(
   location: string,
   enabled: boolean
 ): Promise<void> {
-  const escapedName = name.replace(/'/g, "''")
-  const escapedCommand = command.replace(/'/g, "''")
+  const escapedName = sanitizeForPS(name)
+  const escapedCommand = sanitizeForPS(command)
   const regPath = location === 'HKLM'
     ? 'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'
     : 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'
@@ -242,9 +243,12 @@ export async function setServiceStartType(
   name: string,
   startType: 'Automatic' | 'Manual' | 'Disabled'
 ): Promise<void> {
-  const escapedName = name.replace(/'/g, "''")
+  const escapedName = sanitizeForPS(name)
+  // Validate startType against allowed values
+  const allowedTypes = ['Automatic', 'Manual', 'Disabled']
+  const safeStartType = allowedTypes.includes(startType) ? startType : 'Manual'
   await runPowerShell(
-    `Set-Service -Name '${escapedName}' -StartupType ${startType} -ErrorAction Stop`
+    `Set-Service -Name '${escapedName}' -StartupType ${safeStartType} -ErrorAction Stop`
   )
 }
 
@@ -281,15 +285,19 @@ export async function setDNS(
   primary: string,
   secondary: string
 ): Promise<void> {
+  const safeIndex = sanitizeNumber(interfaceIndex)
+  const safePrimary = sanitizeForPS(primary)
+  const safeSecondary = sanitizeForPS(secondary)
   await runPowerShell(
-    `Set-DnsClientServerAddress -InterfaceIndex ${interfaceIndex} -ServerAddresses ("${primary}","${secondary}")`
+    `Set-DnsClientServerAddress -InterfaceIndex ${safeIndex} -ServerAddresses ("${safePrimary}","${safeSecondary}")`
   )
 }
 
 export async function pingDNS(server: string): Promise<number> {
   try {
+    const safeServer = sanitizeForPS(server)
     const result = await runPowerShell(
-      `(Test-Connection -ComputerName '${server}' -Count 3 -ErrorAction Stop | Measure-Object -Property ResponseTime -Average).Average`
+      `(Test-Connection -ComputerName '${safeServer}' -Count 3 -ErrorAction Stop | Measure-Object -Property ResponseTime -Average).Average`
     )
     const latency = parseFloat(result)
     return isNaN(latency) ? -1 : Math.round(latency)
@@ -335,8 +343,8 @@ export async function setTaskEnabled(
   taskPath: string,
   enabled: boolean
 ): Promise<void> {
-  const escapedName = taskName.replace(/'/g, "''")
-  const escapedPath = taskPath.replace(/'/g, "''")
+  const escapedName = sanitizeForPS(taskName)
+  const escapedPath = sanitizeForPS(taskPath)
 
   if (enabled) {
     await runPowerShell(`Enable-ScheduledTask -TaskName '${escapedName}' -TaskPath '${escapedPath}' -ErrorAction Stop`)

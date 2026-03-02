@@ -1,4 +1,5 @@
 import { ipcMain, shell, dialog } from 'electron'
+import { handleWithValidation, validators } from './validate'
 import {
   scanJunkCategory,
   cleanJunkItems,
@@ -25,9 +26,14 @@ export function registerCleanerIPC(): void {
     return categories
   })
 
-  ipcMain.handle('cleaner:clean', async (_event, paths: string[]) => {
-    return await cleanJunkItems(paths)
-  })
+  // Validated: paths must be string array
+  handleWithValidation(
+    'cleaner:clean',
+    validators.stringArray,
+    async (paths: string[]) => {
+      return await cleanJunkItems(paths)
+    }
+  )
 
   ipcMain.handle(
     'cleaner:findLargeFiles',
@@ -48,17 +54,27 @@ export function registerCleanerIPC(): void {
     await emptyRecycleBin()
   })
 
-  ipcMain.handle('cleaner:shredFiles', async (_event, filePaths: string[]) => {
-    return await shredFiles(filePaths)
-  })
+  // Validated: filePaths must be string array
+  handleWithValidation(
+    'cleaner:shredFiles',
+    validators.stringArray,
+    async (filePaths: string[]) => {
+      return await shredFiles(filePaths)
+    }
+  )
 
   ipcMain.on('cleaner:openFolder', (_event, filePath: string) => {
     shell.showItemInFolder(filePath)
   })
 
-  ipcMain.handle('cleaner:deleteFile', async (_event, filePath: string) => {
-    await deleteFile(filePath)
-  })
+  // Validated: filePath must be string
+  handleWithValidation(
+    'cleaner:deleteFile',
+    validators.string,
+    async (filePath: string) => {
+      await deleteFile(filePath)
+    }
+  )
 
   ipcMain.handle('cleaner:openFileDialog', async () => {
     const result = await dialog.showOpenDialog({

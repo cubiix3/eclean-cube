@@ -1,4 +1,5 @@
 import { runPowerShell } from './powershell'
+import { sanitizePath, sanitizeNumber } from './sanitize'
 
 export interface DuplicateFile {
   path: string
@@ -16,8 +17,9 @@ export async function findDuplicates(
   minSizeMB: number = 1
 ): Promise<DuplicateGroup[]> {
   try {
-    const minBytes = minSizeMB * 1024 * 1024
-    const escapedDir = directory.replace(/'/g, "''")
+    const safeMinSizeMB = sanitizeNumber(minSizeMB)
+    const minBytes = safeMinSizeMB * 1024 * 1024
+    const escapedDir = sanitizePath(directory).replace(/'/g, "''")
     const result = await runPowerShell(
       `Get-ChildItem -Path '${escapedDir}' -Recurse -File -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt ${minBytes} } | Group-Object Name | Where-Object { $_.Count -gt 1 } | ForEach-Object { $_.Group | Select-Object FullName, Name, Length, LastWriteTime } | ConvertTo-Json -Depth 3`
     )
@@ -74,7 +76,7 @@ export async function deleteDuplicates(
 
   for (const filePath of paths) {
     try {
-      const escapedPath = filePath.replace(/'/g, "''")
+      const escapedPath = sanitizePath(filePath).replace(/'/g, "''")
       await runPowerShell(
         `if (Test-Path '${escapedPath}') { Remove-Item '${escapedPath}' -Force -ErrorAction Stop }`
       )

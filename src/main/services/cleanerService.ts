@@ -1,4 +1,5 @@
 import { runPowerShell } from './powershell'
+import { sanitizePath, sanitizeNumber } from './sanitize'
 import { app } from 'electron'
 import path from 'path'
 
@@ -110,7 +111,7 @@ export async function cleanJunkItems(
 
   for (const p of paths) {
     try {
-      const escapedPath = p.replace(/'/g, "''")
+      const escapedPath = sanitizePath(p).replace(/'/g, "''")
       await runPowerShell(
         `if (Test-Path '${escapedPath}') { Remove-Item '${escapedPath}\\*' -Recurse -Force -ErrorAction SilentlyContinue }`
       )
@@ -128,8 +129,10 @@ export async function findLargeFiles(
   minSizeMB: number = 100
 ): Promise<LargeFile[]> {
   try {
+    const safeDrive = sanitizePath(driveLetter).charAt(0) || 'C'
+    const safeMinSize = sanitizeNumber(minSizeMB)
     const result = await runPowerShell(
-      `Get-ChildItem -Path '${driveLetter}:\\Users' -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt ${minSizeMB * 1024 * 1024} } | Sort-Object Length -Descending | Select-Object -First 50 FullName, Name, Length, LastWriteTime | ConvertTo-Json -Depth 3`
+      `Get-ChildItem -Path '${safeDrive}:\\Users' -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt ${safeMinSize * 1024 * 1024} } | Sort-Object Length -Descending | Select-Object -First 50 FullName, Name, Length, LastWriteTime | ConvertTo-Json -Depth 3`
     )
     if (!result) return []
     const parsed = JSON.parse(result)
@@ -168,7 +171,7 @@ export async function shredFiles(
 
   for (const filePath of filePaths) {
     try {
-      const escapedPath = filePath.replace(/'/g, "''")
+      const escapedPath = sanitizePath(filePath).replace(/'/g, "''")
       // Overwrite with random data 3 times then delete
       await runPowerShell(
         `$p = '${escapedPath}'; if (Test-Path $p -PathType Leaf) { $s = (Get-Item $p).Length; $b = New-Object byte[] ([math]::Min($s, 1048576)); for ($i=0; $i -lt 3; $i++) { $f = [IO.File]::OpenWrite($p); $w = 0; while ($w -lt $s) { (New-Object Random).NextBytes($b); $c = [math]::Min($b.Length, $s - $w); $f.Write($b, 0, $c); $w += $c }; $f.Close() }; Remove-Item $p -Force } elseif (Test-Path $p) { Remove-Item $p -Recurse -Force }`
@@ -197,7 +200,7 @@ export async function getAvailableDrives(): Promise<string[]> {
 }
 
 export async function deleteFile(filePath: string): Promise<void> {
-  const escapedPath = filePath.replace(/'/g, "''")
+  const escapedPath = sanitizePath(filePath).replace(/'/g, "''")
   await runPowerShell(
     `if (Test-Path '${escapedPath}') { Remove-Item '${escapedPath}' -Force -ErrorAction Stop }`
   )

@@ -1,4 +1,5 @@
 import { ipcMain } from 'electron'
+import { handleWithValidation, validators } from './validate'
 import {
   getProcesses,
   killProcess,
@@ -12,9 +13,14 @@ export function registerProcessIPC(): void {
     return await getProcesses()
   })
 
-  ipcMain.handle('process:kill', async (_event, pid: number) => {
-    return await killProcess(pid)
-  })
+  // Validated: pid must be a number
+  handleWithValidation(
+    'process:kill',
+    validators.number,
+    async (pid: number) => {
+      return await killProcess(pid)
+    }
+  )
 
   ipcMain.handle('process:getCount', async () => {
     return await getProcessCount()

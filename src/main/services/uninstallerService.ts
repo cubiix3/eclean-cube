@@ -2,6 +2,7 @@ import { app, shell } from 'electron'
 import { join } from 'path'
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'fs'
 import { runPowerShell, runPowerShellJSON } from './powershell'
+import { sanitizeForPS, sanitizePath } from './sanitize'
 
 // ──────────────────────────────────────────────
 // Types
@@ -316,12 +317,12 @@ export async function openExtensionsPage(browser: string): Promise<void> {
 
 export async function scanLeftovers(appName: string): Promise<LeftoverItem[]> {
   const leftovers: LeftoverItem[] = []
-  const searchName = appName.trim()
+  const searchName = sanitizeForPS(appName.trim())
 
   if (!searchName) return leftovers
 
-  // Escape special characters for PowerShell
-  const escapedName = searchName.replace(/'/g, "''")
+  // Already sanitized above
+  const escapedName = searchName
 
   // File/folder search
   try {
@@ -401,14 +402,15 @@ export async function cleanLeftovers(
   for (const item of items) {
     try {
       if (item.type === 'file') {
-        await runPowerShell(`Remove-Item -Path '${item.path.replace(/'/g, "''")}' -Recurse -Force -ErrorAction Stop`)
+        const safePath = sanitizePath(item.path).replace(/'/g, "''")
+        await runPowerShell(`Remove-Item -Path '${safePath}' -Recurse -Force -ErrorAction Stop`)
         success.push(item.path)
       } else if (item.type === 'registry') {
         // Convert HKEY_CURRENT_USER/HKEY_LOCAL_MACHINE to HKCU:/HKLM: format
-        let regPath = item.path
+        let regPath = sanitizeForPS(item.path)
         regPath = regPath.replace('HKEY_CURRENT_USER', 'HKCU:')
         regPath = regPath.replace('HKEY_LOCAL_MACHINE', 'HKLM:')
-        await runPowerShell(`Remove-Item -Path '${regPath.replace(/'/g, "''")}' -Recurse -Force -ErrorAction Stop`)
+        await runPowerShell(`Remove-Item -Path '${regPath}' -Recurse -Force -ErrorAction Stop`)
         success.push(item.path)
       }
     } catch (err: any) {
