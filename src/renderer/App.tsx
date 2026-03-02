@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Titlebar from './components/Titlebar'
@@ -8,6 +8,7 @@ import PageTransition from './components/PageTransition'
 import ToastContainer from './components/ToastContainer'
 import ErrorBoundary from './components/ErrorBoundary'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useToastStore } from './stores/toastStore'
 
 const DashboardPage = lazy(() => import('./modules/dashboard/DashboardPage'))
 const HardwarePage = lazy(() => import('./modules/hardware/HardwarePage'))
@@ -30,6 +31,24 @@ function PageLoader() {
 
 function MainLayout() {
   useKeyboardShortcuts()
+  const addToast = useToastStore((s) => s.addToast)
+
+  useEffect(() => {
+    window.api.auto.onCleanResult((data) => {
+      addToast({
+        type: 'success',
+        title: 'Auto-cleanup complete',
+        message: `${data.cleaned} items cleaned on startup`
+      })
+    })
+    window.api.auto.onOptimizeResult((data) => {
+      addToast({
+        type: 'success',
+        title: 'Auto-optimization complete',
+        message: `${data.applied} tweaks applied on startup`
+      })
+    })
+  }, [])
 
   return (
     <div className="flex h-screen w-screen bg-[#0a0a0f]">

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import {
   Palette,
@@ -23,7 +23,13 @@ import {
   Gauge,
   Settings,
   Thermometer,
-  ThermometerSun
+  ThermometerSun,
+  Sparkles,
+  CalendarClock,
+  Plus,
+  Play,
+  X,
+  Timer
 } from 'lucide-react'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useToastStore } from '@/stores/toastStore'
@@ -101,6 +107,218 @@ function SectionCard({
       <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider mb-3">{title}</h3>
       <div className="divide-y divide-white/5">{children}</div>
     </div>
+  )
+}
+
+function AutomationSection() {
+  const [schedules, setSchedules] = useState<Schedule[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [showAdd, setShowAdd] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newType, setNewType] = useState<'cleanup' | 'optimize'>('cleanup')
+  const [newFreq, setNewFreq] = useState<'daily' | 'weekly' | 'monthly'>('weekly')
+  const [runningId, setRunningId] = useState<string | null>(null)
+  const addToast = useToastStore((s) => s.addToast)
+
+  const fetchSchedules = useCallback(async () => {
+    try {
+      const data = await window.api.scheduler.getAll()
+      setSchedules(data)
+    } catch {
+      setSchedules([])
+    }
+    setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    fetchSchedules()
+  }, [fetchSchedules])
+
+  async function handleAdd() {
+    if (!newName.trim()) return
+    try {
+      await window.api.scheduler.add({ name: newName, type: newType, frequency: newFreq, enabled: true })
+      addToast({ type: 'success', title: 'Schedule created' })
+      setShowAdd(false)
+      setNewName('')
+      fetchSchedules()
+    } catch {
+      addToast({ type: 'error', title: 'Failed to create schedule' })
+    }
+  }
+
+  async function handleToggle(id: string, enabled: boolean) {
+    try {
+      await window.api.scheduler.update(id, { enabled })
+      fetchSchedules()
+    } catch {
+      addToast({ type: 'error', title: 'Failed to update schedule' })
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await window.api.scheduler.remove(id)
+      addToast({ type: 'info', title: 'Schedule removed' })
+      fetchSchedules()
+    } catch {
+      addToast({ type: 'error', title: 'Failed to remove schedule' })
+    }
+  }
+
+  async function handleRunNow(id: string) {
+    setRunningId(id)
+    try {
+      const result = await window.api.scheduler.runNow(id)
+      addToast({
+        type: result.success ? 'success' : 'error',
+        title: result.success ? 'Schedule executed' : 'Execution failed',
+        message: result.message
+      })
+      fetchSchedules()
+    } catch {
+      addToast({ type: 'error', title: 'Failed to run schedule' })
+    }
+    setRunningId(null)
+  }
+
+  function formatDate(ts: number | null) {
+    if (!ts) return 'Never'
+    return new Date(ts).toLocaleString('en-US', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    })
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.25 }}
+    >
+      <div className="glass rounded-2xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <CalendarClock className="w-4 h-4 text-white/50" />
+            <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">
+              Automation
+            </h3>
+          </div>
+          <button
+            onClick={() => setShowAdd(!showAdd)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 text-xs text-white/60 hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add Schedule
+          </button>
+        </div>
+
+        {/* Add Schedule Form */}
+        {showAdd && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-4 p-4 rounded-xl bg-white/[0.03] border border-white/5"
+          >
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                placeholder="Schedule name"
+                className="col-span-3 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white placeholder-white/20 focus:outline-none focus:border-white/20"
+              />
+              <select
+                value={newType}
+                onChange={(e) => setNewType(e.target.value as 'cleanup' | 'optimize')}
+                className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none cursor-pointer"
+              >
+                <option value="cleanup">Cleanup</option>
+                <option value="optimize">Optimize</option>
+              </select>
+              <select
+                value={newFreq}
+                onChange={(e) => setNewFreq(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm text-white focus:outline-none cursor-pointer"
+              >
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+              <button
+                onClick={handleAdd}
+                disabled={!newName.trim()}
+                className="px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-sm text-white font-medium hover:from-blue-600 hover:to-cyan-500 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                Create
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Schedules List */}
+        {isLoading ? (
+          <div className="h-16 animate-pulse bg-white/5 rounded-xl" />
+        ) : schedules.length === 0 ? (
+          <p className="text-sm text-white/30 text-center py-6">
+            No schedules configured. Add one to automate cleanup or optimization.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {schedules.map((schedule) => (
+              <div
+                key={schedule.id}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5"
+              >
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    schedule.type === 'cleanup'
+                      ? 'bg-green-500/10'
+                      : 'bg-blue-500/10'
+                  }`}
+                >
+                  {schedule.type === 'cleanup' ? (
+                    <Trash2 className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 text-blue-400" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white font-medium truncate">{schedule.name}</p>
+                  <div className="flex items-center gap-2 text-[10px] text-white/30">
+                    <span className="capitalize">{schedule.frequency}</span>
+                    <span>|</span>
+                    <span>Last: {formatDate(schedule.lastRun)}</span>
+                    <span>|</span>
+                    <span>Next: {formatDate(schedule.nextRun)}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleRunNow(schedule.id)}
+                    disabled={runningId === schedule.id}
+                    className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+                    title="Run now"
+                  >
+                    <Play className={`w-3.5 h-3.5 text-white/40 ${runningId === schedule.id ? 'animate-pulse' : ''}`} />
+                  </button>
+                  <Toggle
+                    enabled={schedule.enabled}
+                    onChange={(val) => handleToggle(schedule.id, val)}
+                  />
+                  <button
+                    onClick={() => handleDelete(schedule.id)}
+                    className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/10 transition-colors cursor-pointer"
+                    title="Delete"
+                  >
+                    <X className="w-3.5 h-3.5 text-white/40 hover:text-red-400" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
   )
 }
 
@@ -183,6 +401,30 @@ export default function SettingsPage() {
                 enabled={settings.general.showNotifications}
                 onChange={(val) =>
                   updateSettings({ general: { ...settings.general, showNotifications: val } })
+                }
+              />
+            </SettingRow>
+            <SettingRow
+              icon={Trash2}
+              label="Auto-clean on startup"
+              description="Run a quick junk cleanup when the app starts"
+            >
+              <Toggle
+                enabled={settings.general.autoCleanOnStart}
+                onChange={(val) =>
+                  updateSettings({ general: { ...settings.general, autoCleanOnStart: val } })
+                }
+              />
+            </SettingRow>
+            <SettingRow
+              icon={Sparkles}
+              label="Auto-optimize on startup"
+              description="Apply safe optimizations when the app starts"
+            >
+              <Toggle
+                enabled={settings.general.autoOptimizeOnStart}
+                onChange={(val) =>
+                  updateSettings({ general: { ...settings.general, autoOptimizeOnStart: val } })
                 }
               />
             </SettingRow>
@@ -449,11 +691,14 @@ export default function SettingsPage() {
         </SectionCard>
       </motion.div>
 
+      {/* Automation */}
+      <AutomationSection />
+
       {/* Keyboard Shortcuts */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.3 }}
       >
         <div className="glass rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-4">

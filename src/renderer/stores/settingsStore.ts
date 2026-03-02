@@ -6,6 +6,8 @@ interface AppSettings {
     launchAtStartup: boolean
     minimizeToTray: boolean
     showNotifications: boolean
+    autoCleanOnStart: boolean
+    autoOptimizeOnStart: boolean
   }
   appearance: {
     accentColor: string
@@ -31,7 +33,9 @@ const DEFAULT_SETTINGS: AppSettings = {
   general: {
     launchAtStartup: false,
     minimizeToTray: true,
-    showNotifications: true
+    showNotifications: true,
+    autoCleanOnStart: false,
+    autoOptimizeOnStart: false
   },
   appearance: {
     accentColor: '#3b82f6',

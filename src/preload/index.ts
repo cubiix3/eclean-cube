@@ -147,6 +147,30 @@ const api = {
     onQuickClean: (callback: () => void) => {
       ipcRenderer.on('tray:quickClean', () => callback())
     }
+  },
+  scheduler: {
+    getAll: () => ipcRenderer.invoke('scheduler:getAll'),
+    add: (schedule: any) => ipcRenderer.invoke('scheduler:add', schedule),
+    remove: (id: string) => ipcRenderer.invoke('scheduler:remove', id),
+    update: (id: string, updates: any) => ipcRenderer.invoke('scheduler:update', id, updates),
+    runNow: (id: string) => ipcRenderer.invoke('scheduler:runNow', id)
+  },
+  privacy: {
+    getBrowserData: () => ipcRenderer.invoke('privacy:getBrowserData'),
+    erase: (browsers: string[], types: string[]) =>
+      ipcRenderer.invoke('privacy:erase', browsers, types)
+  },
+  report: {
+    generate: () => ipcRenderer.invoke('report:generate'),
+    generateAndOpen: () => ipcRenderer.invoke('report:generateAndOpen')
+  },
+  auto: {
+    onCleanResult: (callback: (data: any) => void) => {
+      ipcRenderer.on('auto:cleanResult', (_event, data) => callback(data))
+    },
+    onOptimizeResult: (callback: (data: any) => void) => {
+      ipcRenderer.on('auto:optimizeResult', (_event, data) => callback(data))
+    }
   }
 }
 

@@ -486,6 +486,8 @@ interface AppSettings {
     launchAtStartup: boolean
     minimizeToTray: boolean
     showNotifications: boolean
+    autoCleanOnStart: boolean
+    autoOptimizeOnStart: boolean
   }
   appearance: {
     accentColor: string
@@ -551,6 +553,66 @@ interface WidgetAPI {
   isOpen: () => Promise<boolean>
 }
 
+// ──────────────────────────────────────────────
+// Scheduler Types
+// ──────────────────────────────────────────────
+
+interface Schedule {
+  id: string
+  name: string
+  type: 'cleanup' | 'optimize'
+  frequency: 'daily' | 'weekly' | 'monthly'
+  enabled: boolean
+  lastRun: number | null
+  nextRun: number
+}
+
+interface SchedulerAPI {
+  getAll: () => Promise<Schedule[]>
+  add: (schedule: Omit<Schedule, 'id' | 'lastRun' | 'nextRun'>) => Promise<Schedule>
+  remove: (id: string) => Promise<void>
+  update: (id: string, updates: Partial<Schedule>) => Promise<Schedule>
+  runNow: (id: string) => Promise<{ success: boolean; message: string }>
+}
+
+// ──────────────────────────────────────────────
+// Privacy Eraser Types
+// ──────────────────────────────────────────────
+
+interface BrowserDataInfo {
+  name: string
+  profilePath: string
+  hasHistory: boolean
+  hasCookies: boolean
+  hasCache: boolean
+  hasSessions: boolean
+  hasPasswords: boolean
+  dataSize: number
+}
+
+interface PrivacyAPI {
+  getBrowserData: () => Promise<BrowserDataInfo[]>
+  erase: (browsers: string[], types: string[]) => Promise<{ cleaned: number; errors: string[] }>
+}
+
+// ──────────────────────────────────────────────
+// Report Types
+// ──────────────────────────────────────────────
+
+interface ReportAPI {
+  generate: () => Promise<{ path: string; success: boolean }>
+  generateAndOpen: () => Promise<{ path: string; success: boolean }>
+}
+
+// ──────────────────────────────────────────────
+// Auto Startup Types
+// ──────────────────────────────────────────────
+
+interface AutoAPI {
+  onCleanResult: (callback: (data: { cleaned: number; errors: string[] }) => void) => void
+  onOptimizeResult: (callback: (data: { applied: number; errors: string[] }) => void) => void
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
@@ -568,6 +630,10 @@ interface ElectronAPI {
   alerts: AlertsAPI
   widget: WidgetAPI
   tray: TrayAPI
+  scheduler: SchedulerAPI
+  privacy: PrivacyAPI
+  report: ReportAPI
+  auto: AutoAPI
 }
 
 declare global {

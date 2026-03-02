@@ -14,9 +14,13 @@ import { registerNetworkIPC } from './ipc/network'
 import { registerGamingIPC } from './ipc/gaming'
 import { registerBenchmarkIPC } from './ipc/benchmark'
 import { registerAlertsIPC } from './ipc/alerts'
+import { registerSchedulerIPC } from './ipc/scheduler'
+import { registerPrivacyIPC } from './ipc/privacy'
+import { registerReportIPC } from './ipc/report'
 import { getSettings } from './services/settingsService'
 import { closePowerShell } from './services/powershell'
 import { stopTempMonitoring } from './services/alertService'
+import { startSchedulerLoop, stopSchedulerLoop, runAutoCleanup, runAutoOptimize } from './services/schedulerService'
 
 let mainWindow: BrowserWindow | null = null
 let miniWidget: BrowserWindow | null = null
@@ -283,14 +287,40 @@ app.whenReady().then(() => {
   registerGamingIPC()
   registerBenchmarkIPC()
   registerAlertsIPC()
+  registerSchedulerIPC()
+  registerPrivacyIPC()
+  registerReportIPC()
   createWindow()
   createTray()
+  startSchedulerLoop()
+
+  // Auto-startup features
+  const startupSettings = getSettings()
+  if (startupSettings.general.autoCleanOnStart) {
+    runAutoCleanup()
+      .then((result) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('auto:cleanResult', result)
+        }
+      })
+      .catch(() => {})
+  }
+  if (startupSettings.general.autoOptimizeOnStart) {
+    runAutoOptimize()
+      .then((result) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('auto:optimizeResult', result)
+        }
+      })
+      .catch(() => {})
+  }
 })
 
 app.on('before-quit', () => {
   isQuitting = true
   closeMiniWidget()
   stopTempMonitoring()
+  stopSchedulerLoop()
   closePowerShell()
 })
 
