@@ -179,7 +179,6 @@ export default function JunkCleanup() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <AnimatePresence>
           {categories.map((cat) => {
             const isExpanded = expandedCategories.has(cat.id)
             const allSelected = cat.items.length > 0 && cat.items.every((i) => i.selected)
@@ -191,8 +190,6 @@ export default function JunkCleanup() {
                 key={cat.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                layout
                 className="glass rounded-2xl overflow-hidden"
               >
                 {/* Card Header */}
@@ -281,7 +278,6 @@ export default function JunkCleanup() {
               </motion.div>
             )
           })}
-        </AnimatePresence>
       </div>
     </div>
   )

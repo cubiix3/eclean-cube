@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Accent color system */
+:root {
+  --accent-color: #3b82f6;
+  --accent-rgb: 59, 130, 246;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -25,11 +25,12 @@ function InfoCard({ icon, title, summary, children }: InfoCardProps) {
   const [expanded, setExpanded] = useState(false)
 
   return (
-    <div
-      className="glass rounded-2xl overflow-hidden cursor-pointer transition-colors hover:bg-white/[0.07]"
-      onClick={() => setExpanded(!expanded)}
-    >
-      <div className="flex items-center gap-4 p-5">
+    <div className="glass rounded-2xl overflow-hidden">
+      {/* Only header is clickable */}
+      <div
+        className="flex items-center gap-4 p-5 cursor-pointer hover:bg-white/[0.03] transition-colors"
+        onClick={() => setExpanded(!expanded)}
+      >
         <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
           {icon}
         </div>
@@ -44,14 +45,14 @@ function InfoCard({ icon, title, summary, children }: InfoCardProps) {
           <ChevronDown size={16} className="text-white/30" />
         </motion.div>
       </div>
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {expanded && (
           <motion.div
+            key="content"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="overflow-hidden"
           >
             <div className="px-5 pb-5 pt-0 border-t border-white/5">
               <div className="pt-4 space-y-2">{children}</div>

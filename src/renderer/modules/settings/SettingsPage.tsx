@@ -54,10 +54,9 @@ function Toggle({
     <button
       onClick={() => onChange(!enabled)}
       className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${
-        enabled
-          ? 'bg-gradient-to-r from-blue-500 to-cyan-400'
-          : 'bg-white/10'
+        enabled ? '' : 'bg-white/10'
       }`}
+      style={enabled ? { background: 'var(--accent-color)' } : undefined}
     >
       <motion.div
         className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"

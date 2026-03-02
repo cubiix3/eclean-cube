@@ -9,6 +9,7 @@ import ToastContainer from './components/ToastContainer'
 import ErrorBoundary from './components/ErrorBoundary'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useToastStore } from './stores/toastStore'
+import { useSettingsStore } from './stores/settingsStore'
 
 const DashboardPage = lazy(() => import('./modules/dashboard/DashboardPage'))
 const HardwarePage = lazy(() => import('./modules/hardware/HardwarePage'))
@@ -29,9 +30,28 @@ function PageLoader() {
   )
 }
 
+function hexToRgb(hex: string): string {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (!result) return '59, 130, 246'
+  return `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
+}
+
 function MainLayout() {
   useKeyboardShortcuts()
   const addToast = useToastStore((s) => s.addToast)
+  const accentColor = useSettingsStore((s) => s.settings.appearance.accentColor)
+  const fetchSettings = useSettingsStore((s) => s.fetchSettings)
+
+  // Load settings on mount
+  useEffect(() => {
+    fetchSettings()
+  }, [])
+
+  // Apply accent color as CSS custom property
+  useEffect(() => {
+    document.documentElement.style.setProperty('--accent-color', accentColor)
+    document.documentElement.style.setProperty('--accent-rgb', hexToRgb(accentColor))
+  }, [accentColor])
 
   useEffect(() => {
     window.api.auto.onCleanResult((data) => {

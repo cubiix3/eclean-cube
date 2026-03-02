@@ -158,6 +158,28 @@ export const useUninstallerStore = create<UninstallerState>((set, get) => ({
           title: 'App removed successfully',
           message: appName
         })
+
+        // Auto-scan for leftovers after successful uninstall
+        setTimeout(async () => {
+          set({ leftoverAppName: appName, activeTab: 'leftovers' })
+          try {
+            set({ isScanning: true, leftovers: [], selectedLeftovers: [] })
+            const leftovers = await window.api.uninstaller.scanLeftovers(appName)
+            const highConfidence = leftovers
+              .filter((l: any) => l.confidence === 'high')
+              .map((l: any) => l.path)
+            set({ leftovers, selectedLeftovers: highConfidence, isScanning: false })
+            if (leftovers.length > 0) {
+              useToastStore.getState().addToast({
+                type: 'warning',
+                title: `Found ${leftovers.length} leftover files`,
+                message: `Leftovers detected for ${appName}. Review and clean them.`
+              })
+            }
+          } catch {
+            set({ isScanning: false })
+          }
+        }, 1000)
       } else {
         useToastStore.getState().addToast({
           type: 'error',

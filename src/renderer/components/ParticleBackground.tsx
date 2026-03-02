@@ -22,9 +22,13 @@ export default function ParticleBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const PARTICLE_COUNT = 50
+    const PARTICLE_COUNT = 25
     const CONNECTION_DISTANCE = 150
     const PARALLAX_STRENGTH = 0.02
+    const TARGET_FPS = 30
+    const FRAME_INTERVAL = 1000 / TARGET_FPS
+
+    let lastFrameTime = 0
 
     function resize() {
       if (!canvas) return
@@ -47,8 +51,18 @@ export default function ParticleBackground() {
       }
     }
 
-    function animate() {
+    function animate(timestamp: number) {
       if (!canvas || !ctx) return
+
+      animFrameRef.current = requestAnimationFrame(animate)
+
+      // Skip rendering when tab is hidden
+      if (document.hidden) return
+
+      // Throttle to target FPS
+      const elapsed = timestamp - lastFrameTime
+      if (elapsed < FRAME_INTERVAL) return
+      lastFrameTime = timestamp - (elapsed % FRAME_INTERVAL)
 
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -103,8 +117,6 @@ export default function ParticleBackground() {
           }
         }
       }
-
-      animFrameRef.current = requestAnimationFrame(animate)
     }
 
     function handleMouseMove(e: MouseEvent) {
@@ -113,16 +125,25 @@ export default function ParticleBackground() {
       mouseRef.current.y = e.clientY - rect.top
     }
 
+    function handleVisibilityChange() {
+      if (!document.hidden) {
+        // Reset lastFrameTime so we don't get a huge delta on resume
+        lastFrameTime = performance.now()
+      }
+    }
+
     resize()
     createParticles()
-    animate()
+    animFrameRef.current = requestAnimationFrame(animate)
 
     window.addEventListener('resize', resize)
     window.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
       window.removeEventListener('resize', resize)
       window.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       cancelAnimationFrame(animFrameRef.current)
     }
   }, [])

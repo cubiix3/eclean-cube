@@ -11,6 +11,7 @@ import {
   type LucideIcon
 } from 'lucide-react'
 import { useNavigationStore, type ModuleId } from '@/stores/navigationStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 import { useNavigate } from 'react-router-dom'
 
 interface NavItem {
@@ -40,6 +41,7 @@ const settingsItem: NavItem = {
 
 export default function Sidebar() {
   const { activeModule, setActiveModule } = useNavigationStore()
+  const accentColor = useSettingsStore((s) => s.settings.appearance.accentColor)
   const navigate = useNavigate()
 
   const handleNav = (item: NavItem) => {
@@ -58,14 +60,18 @@ export default function Sidebar() {
           relative w-12 h-12 rounded-xl flex items-center justify-center
           transition-all duration-200 group
           ${isActive
-            ? 'bg-gradient-to-br from-blue-500/20 to-cyan-400/20 text-blue-400'
+            ? ''
             : 'text-white/40 hover:text-white/70 hover:bg-white/5'
           }
         `}
+        style={isActive ? { background: `${accentColor}20`, color: accentColor } : undefined}
         title={item.label}
       >
         {isActive && (
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-gradient-to-b from-blue-500 to-cyan-400 rounded-r-full" />
+          <div
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
+            style={{ background: accentColor }}
+          />
         )}
         <Icon size={20} />
 
@@ -80,7 +86,10 @@ export default function Sidebar() {
   return (
     <div className="w-[70px] h-full bg-[#16161f] flex flex-col items-center py-4 border-r border-white/5">
       {/* Logo */}
-      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center mb-8">
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center mb-8"
+        style={{ background: accentColor }}
+      >
         <span className="text-white font-bold text-sm">e</span>
       </div>
 
