@@ -1,6 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { FileText, Loader2 } from 'lucide-react'
 import { useHardwareStore } from '@/stores/hardwareStore'
+import { useToastStore } from '@/stores/toastStore'
 import SystemInfo from './SystemInfo'
 import SensorCharts from './SensorCharts'
 import NetworkMonitor from './NetworkMonitor'
@@ -23,10 +25,31 @@ export default function HardwarePage() {
     addSensorData,
     setActiveTab
   } = useHardwareStore()
+  const addToast = useToastStore((s) => s.addToast)
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     fetchHardwareInfo()
   }, [])
+
+  async function handleExportReport() {
+    setIsExporting(true)
+    try {
+      const result = await window.api.report.generateAndOpen()
+      if (result.success) {
+        addToast({
+          type: 'success',
+          title: 'Report exported',
+          message: `Saved to ${result.path}`
+        })
+      } else {
+        addToast({ type: 'error', title: 'Report generation failed' })
+      }
+    } catch {
+      addToast({ type: 'error', title: 'Failed to export report' })
+    }
+    setIsExporting(false)
+  }
 
   useEffect(() => {
     if (activeTab === 'sensors') {
@@ -43,9 +66,23 @@ export default function HardwarePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">Your PC</h1>
-        <p className="text-sm text-white/40 mt-1">Know your hardware</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Your PC</h1>
+          <p className="text-sm text-white/40 mt-1">Know your hardware</p>
+        </div>
+        <button
+          onClick={handleExportReport}
+          disabled={isExporting}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-400/10 border border-blue-500/20 text-sm text-blue-400 hover:from-blue-500/20 hover:to-cyan-400/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isExporting ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileText className="w-4 h-4" />
+          )}
+          Export System Report
+        </button>
       </div>
 
       {/* Tab Bar */}
