@@ -4,6 +4,7 @@ import Titlebar from './components/Titlebar'
 import Sidebar from './components/Sidebar'
 import PageTransition from './components/PageTransition'
 import DashboardPage from './modules/dashboard/DashboardPage'
+import HardwarePage from './modules/hardware/HardwarePage'
 
 // Placeholder pages
 function OptimizerPage() {
@@ -11,9 +12,6 @@ function OptimizerPage() {
 }
 function CleanerPage() {
   return <PageTransition><div className="text-white text-xl">Cleaner</div></PageTransition>
-}
-function HardwarePage() {
-  return <PageTransition><div className="text-white text-xl">Your PC</div></PageTransition>
 }
 function BoosterPage() {
   return <PageTransition><div className="text-white text-xl">Booster</div></PageTransition>
@@ -35,7 +33,7 @@ export default function App() {
                 <Route path="/" element={<PageTransition><DashboardPage /></PageTransition>} />
                 <Route path="/optimizer" element={<OptimizerPage />} />
                 <Route path="/cleaner" element={<CleanerPage />} />
-                <Route path="/hardware" element={<HardwarePage />} />
+                <Route path="/hardware" element={<PageTransition><HardwarePage /></PageTransition>} />
                 <Route path="/booster" element={<BoosterPage />} />
                 <Route path="/uninstaller" element={<UninstallerPage />} />
               </Routes>
