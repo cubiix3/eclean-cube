@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useToastStore } from './toastStore'
 
 export type UninstallerTab = 'desktop' | 'uwp' | 'extensions' | 'leftovers'
 
@@ -152,11 +153,27 @@ export const useUninstallerStore = create<UninstallerState>((set, get) => ({
         }))
         // Refresh history
         get().fetchHistory()
+        useToastStore.getState().addToast({
+          type: 'success',
+          title: 'App removed successfully',
+          message: appName
+        })
+      } else {
+        useToastStore.getState().addToast({
+          type: 'error',
+          title: 'Uninstall failed',
+          message: result.error || appName
+        })
       }
       set({ isUninstalling: false })
       return result
     } catch (err: any) {
       set({ isUninstalling: false })
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Uninstall failed',
+        message: err?.message || 'Unknown error'
+      })
       return { success: false, error: err?.message || 'Unknown error' }
     }
   },
@@ -198,11 +215,27 @@ export const useUninstallerStore = create<UninstallerState>((set, get) => ({
           uwpApps: state.uwpApps.filter((a) => a.PackageFullName !== packageFullName)
         }))
         get().fetchHistory()
+        useToastStore.getState().addToast({
+          type: 'success',
+          title: 'App removed successfully',
+          message: appName
+        })
+      } else {
+        useToastStore.getState().addToast({
+          type: 'error',
+          title: 'Remove failed',
+          message: result.error || appName
+        })
       }
       set({ isRemovingUwp: false })
       return result
     } catch (err: any) {
       set({ isRemovingUwp: false })
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Remove failed',
+        message: err?.message || 'Unknown error'
+      })
       return { success: false, error: err?.message || 'Unknown error' }
     }
   },

@@ -3,12 +3,14 @@ import { AnimatePresence } from 'framer-motion'
 import Titlebar from './components/Titlebar'
 import Sidebar from './components/Sidebar'
 import PageTransition from './components/PageTransition'
+import ToastContainer from './components/ToastContainer'
 import DashboardPage from './modules/dashboard/DashboardPage'
 import HardwarePage from './modules/hardware/HardwarePage'
 import CleanerPage from './modules/cleaner/CleanerPage'
 import BoosterPage from './modules/booster/BoosterPage'
 import OptimizerPage from './modules/optimizer/OptimizerPage'
 import UninstallerPage from './modules/uninstaller/UninstallerPage'
+import SettingsPage from './modules/settings/SettingsPage'
 
 export default function App() {
   return (
@@ -26,10 +28,12 @@ export default function App() {
                 <Route path="/hardware" element={<PageTransition><HardwarePage /></PageTransition>} />
                 <Route path="/booster" element={<PageTransition><BoosterPage /></PageTransition>} />
                 <Route path="/uninstaller" element={<PageTransition><UninstallerPage /></PageTransition>} />
+                <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
               </Routes>
             </AnimatePresence>
           </main>
         </div>
+        <ToastContainer />
       </div>
     </HashRouter>
   )

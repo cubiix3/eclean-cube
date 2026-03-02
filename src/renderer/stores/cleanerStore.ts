@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useToastStore } from './toastStore'
 
 export interface ShredderFile {
   path: string
@@ -145,11 +146,21 @@ export const useCleanerStore = create<CleanerState>((set, get) => ({
     try {
       const result = await window.api.cleaner.clean(selectedPaths)
       set({ cleanResult: result })
+      const totalBytes = selectedPaths.length > 0 ? result.cleaned : 0
+      const mbFreed = (totalBytes / (1024 * 1024)).toFixed(1)
+      useToastStore.getState().addToast({
+        type: 'success',
+        title: `Cleaned ${selectedPaths.length} files (${mbFreed} MB freed)`
+      })
       // Re-scan after cleaning
       const store = get()
       store.scanAll()
-    } catch {
-      // silently ignore
+    } catch (err: any) {
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Clean failed',
+        message: err?.message || 'An unexpected error occurred'
+      })
     }
     set({ isCleaning: false })
   },
@@ -214,8 +225,16 @@ export const useCleanerStore = create<CleanerState>((set, get) => ({
     try {
       const result = await window.api.cleaner.shredFiles(shredderFiles.map((f) => f.path))
       set({ shredResult: result, shredderFiles: [] })
-    } catch {
-      // silently ignore
+      useToastStore.getState().addToast({
+        type: 'success',
+        title: `${result.success.length} files securely shredded`
+      })
+    } catch (err: any) {
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Shredding failed',
+        message: err?.message || 'An unexpected error occurred'
+      })
     }
     set({ isShredding: false })
   },
