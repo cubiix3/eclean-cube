@@ -1,0 +1,145 @@
+Speed up your PC, extend battery life, and quiet background processes. Safe changes you can undo anytime. Join our Discord to be first in line when eclean launches.
+
+Six powerful tools, one app
+Click any feature to learn more about what it does.
+
+Optimizer
+Fine-tune Windows settings across 8 categories: privacy, security, performance, and more.
+
+8 optimization categories
+Review before applying
+Undo any change
+Explore Optimizer
+Cleaner
+Free up disk space by removing junk files, finding large files, and securely deleting sensitive data.
+
+Scan 4 categories at once
+Find files hogging your space
+Permanently delete sensitive data
+Explore Cleaner
+Your PC
+Know your hardware with detailed specs and live sensor monitoring.
+
+Detailed hardware specs
+Real-time sensor monitoring
+Spot issues before they slow you down
+Explore Your PC
+Booster
+Speed up boot times by managing startup apps, services, DNS settings, and scheduled tasks.
+
+Startup impact ratings
+Service management
+Faster DNS for better browsing
+Explore Booster
+Uninstaller
+Completely remove software, Store apps, and extensions with leftover cleanup.
+
+Find leftover files after uninstall
+Remove multiple apps at once
+Manage browser extensions
+Explore Uninstaller
+Dashboard
+Your control center with health score, one-click actions, and live system monitoring.
+
+One-click health score
+Quick actions that save time
+Live sensor charts
+Explore Dashboard
+
+
+
+Optimizer
+Introducing
+Quick Optimize
+A guided 3-step wizard that analyzes your system and applies the perfect tweaks for your needs. Select your priorities, let us process, then review before applying.
+
+
+Cleaner
+Reclaim Your
+Disk Space
+Three powerful tools: Junk Cleanup scans browsers, system, apps, and games; Large Files Finder locates space hogs; File Shredder permanently destroys sensitive files with 7-pass overwrite.
+
+
+Junk Cleanup
+Scan browsers, system files, apps, and games. Supports Chrome, Firefox, Edge, and 20+ more browsers.
+
+Large Files Finder
+Discover space-hogging files across your drives, sortable by size with quick actions.
+
+Secure File Shredder
+Permanently destroy files with 7-pass overwrite. Deleted files cannot be recovered.
+
+Key Benefits
+Preview files before deletion
+4 scan categories: Browsers, System, Applications, Games
+Real-time streaming scan progress
+Supports Chrome, Firefox, Edge, Brave, Opera, and 17+ more browsers
+Safe defaults protect important files
+
+
+Know Your
+Hardware
+Two sections cover everything: System Information shows full hardware specs, and Sensors display real-time charts for all your components.
+
+System Information
+Full specs for CPU, GPU, RAM, storage, and network adapters. Works with NVIDIA and AMD.
+
+Real-time Sensors
+Live charts for CPU, GPU, RAM, network, and disk with historical data streaming.
+
+Key Benefits
+Beautiful real-time graphs with event streaming
+Full NVIDIA and AMD GPU sensor support
+Per-disk and per-adapter breakdowns
+Historical data to track performance over time
+
+
+Booster
+Faster Boot,
+Every Time
+Take control of what runs when your PC starts. Manage startup apps with impact ratings, configure Windows services, set faster DNS for better browsing, and control scheduled tasks.
+
+
+Startup Apps Manager
+See which apps slow boot the most (High/Medium/Low impact) and disable them.
+
+Windows Services
+Manage service startup types to reduce background resource consumption.
+
+DNS Optimizer
+Switch to faster DNS servers like Cloudflare or Google for quicker browsing.
+
+Task Scheduler
+Review and control Windows scheduled tasks that run in the background.
+
+Key Benefits
+Impact ratings show which apps slow down boot the most
+Faster PC startup times
+Lower idle resource usage
+Easy enable/disable toggles
+Publisher and startup type info for each app
+
+
+Complete Removal,
+Zero Leftovers
+Uninstall Win32 software, UWP/Store apps, and browser extensions. Batch uninstall multiple programs at once, and detect leftover files and registry entries with confidence-scored cleanup.
+
+
+Desktop Software
+Uninstall Win32 applications with size indicators and install dates.
+
+UWP/Store Apps
+Remove Windows Store and built-in Microsoft apps you don't need.
+
+Browser Extensions
+View and remove extensions from Chrome, Firefox, Edge, and other browsers in one place.
+
+Leftover Detection
+Find residual files and registry keys after uninstall with confidence scoring.
+
+Key Benefits
+Confidence-scored leftover cleanup
+Batch uninstall multiple programs in sequence
+Grid view with color-coded size indicators
+Full history of uninstallation actions
+Search, filter, and sort by name, size, or date
