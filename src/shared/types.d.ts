@@ -102,11 +102,21 @@ interface DetailedSensors {
   diskIO: { name: string; readBytesPerSec: number; writeBytesPerSec: number }[]
 }
 
+interface DiskHealthInfo {
+  name: string
+  healthStatus: 'Healthy' | 'Warning' | 'Unhealthy' | 'Unknown'
+  size: number
+  mediaType: string
+  operationalStatus: string
+  predictFailure: boolean
+}
+
 interface HardwareAPI {
   getInfo: () => Promise<HardwareInfo>
   startSensors: () => void
   stopSensors: () => void
   onSensorData: (callback: (data: DetailedSensors) => void) => void
+  getDiskHealth: () => Promise<DiskHealthInfo[]>
 }
 
 interface CleanerJunkItem {

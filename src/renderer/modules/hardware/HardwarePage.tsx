@@ -4,11 +4,13 @@ import { useHardwareStore } from '@/stores/hardwareStore'
 import SystemInfo from './SystemInfo'
 import SensorCharts from './SensorCharts'
 import NetworkMonitor from './NetworkMonitor'
+import DiskHealth from './DiskHealth'
 
 const TABS = [
   { key: 'info' as const, label: 'System Info' },
   { key: 'sensors' as const, label: 'Sensors' },
-  { key: 'network' as const, label: 'Network' }
+  { key: 'network' as const, label: 'Network' },
+  { key: 'diskHealth' as const, label: 'Disk Health' }
 ]
 
 export default function HardwarePage() {
@@ -117,6 +119,18 @@ export default function HardwarePage() {
             transition={{ duration: 0.2 }}
           >
             <NetworkMonitor />
+          </motion.div>
+        )}
+
+        {activeTab === 'diskHealth' && (
+          <motion.div
+            key="diskHealth"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+          >
+            <DiskHealth />
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,5 +1,5 @@
 import { ipcMain, BrowserWindow } from 'electron'
-import { getHardwareInfo, getDetailedSensors } from '../services/hardwareInfo'
+import { getHardwareInfo, getDetailedSensors, getDiskHealth } from '../services/hardwareInfo'
 
 let hwSensorInterval: ReturnType<typeof setInterval> | null = null
 
@@ -28,5 +28,9 @@ export function registerHardwareIPC(): void {
       clearInterval(hwSensorInterval)
       hwSensorInterval = null
     }
+  })
+
+  ipcMain.handle('hardware:getDiskHealth', async () => {
+    return await getDiskHealth()
   })
 }

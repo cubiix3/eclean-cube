@@ -1,4 +1,4 @@
-import { runPowerShellJSON } from './powershell'
+import { runPowerShellJSON, runPowerShell } from './powershell'
 
 export interface CpuInfo {
   name: string
@@ -247,4 +247,57 @@ export async function getDetailedSensors(): Promise<DetailedSensors> {
     netAdapters,
     diskIO
   }
+}
+
+export interface DiskHealthInfo {
+  name: string
+  healthStatus: 'Healthy' | 'Warning' | 'Unhealthy' | 'Unknown'
+  size: number
+  mediaType: string
+  operationalStatus: string
+  predictFailure: boolean
+}
+
+export async function getDiskHealth(): Promise<DiskHealthInfo[]> {
+  const [physicalDisks, smartData] = await Promise.all([
+    runPowerShellJSON<any>(
+      'Get-PhysicalDisk | Select-Object FriendlyName, MediaType, HealthStatus, OperationalStatus, Size'
+    ).catch(() => []),
+    runPowerShell(
+      'Get-CimInstance -Namespace root\\wmi -ClassName MSStorageDriver_FailurePredictStatus -ErrorAction SilentlyContinue | Select-Object InstanceName, PredictFailure, Reason | ConvertTo-Json -Depth 5 -Compress'
+    ).catch(() => '[]')
+  ])
+
+  // Parse S.M.A.R.T. data
+  let smartItems: any[] = []
+  try {
+    const parsed = JSON.parse(smartData || '[]')
+    smartItems = Array.isArray(parsed) ? parsed : parsed ? [parsed] : []
+  } catch {
+    smartItems = []
+  }
+
+  const diskItems = Array.isArray(physicalDisks) ? physicalDisks : physicalDisks ? [physicalDisks] : []
+
+  return diskItems.map((disk: any, index: number) => {
+    const name = disk.FriendlyName || `Disk ${index}`
+    const healthRaw = (disk.HealthStatus || 'Unknown').toString()
+    let healthStatus: DiskHealthInfo['healthStatus'] = 'Unknown'
+    if (healthRaw === 'Healthy' || healthRaw === '0') healthStatus = 'Healthy'
+    else if (healthRaw === 'Warning' || healthRaw === '1') healthStatus = 'Warning'
+    else if (healthRaw === 'Unhealthy' || healthRaw === '2') healthStatus = 'Unhealthy'
+
+    // Try to match S.M.A.R.T. data by index or name
+    const smartMatch = smartItems[index]
+    const predictFailure = smartMatch?.PredictFailure === true
+
+    return {
+      name,
+      healthStatus,
+      size: disk.Size || 0,
+      mediaType: (disk.MediaType || 'Unknown').toString().replace('4', 'SSD').replace('3', 'HDD'),
+      operationalStatus: (disk.OperationalStatus || 'Unknown').toString(),
+      predictFailure
+    }
+  })
 }

@@ -26,7 +26,8 @@ const api = {
     stopSensors: () => ipcRenderer.send('hardware:stopSensors'),
     onSensorData: (callback: (data: any) => void) => {
       ipcRenderer.on('hardware:sensorData', (_event, data) => callback(data))
-    }
+    },
+    getDiskHealth: () => ipcRenderer.invoke('hardware:getDiskHealth')
   },
   cleaner: {
     scanCategory: (categoryId: string) => ipcRenderer.invoke('cleaner:scanCategory', categoryId),
