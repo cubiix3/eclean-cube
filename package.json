@@ -16,6 +16,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@electron-toolkit/utils": "^4.0.0",
     "electron": "^40.6.1",
     "electron-vite": "^5.0.0",
     "framer-motion": "^12.34.3",
