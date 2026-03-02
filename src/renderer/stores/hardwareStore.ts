@@ -3,12 +3,12 @@ import { create } from 'zustand'
 interface HardwareState {
   hardwareInfo: HardwareInfo | null
   sensorHistory: DetailedSensors[]
-  activeTab: 'info' | 'sensors'
+  activeTab: 'info' | 'sensors' | 'network'
   isLoading: boolean
 
   fetchHardwareInfo: () => Promise<void>
   addSensorData: (data: DetailedSensors) => void
-  setActiveTab: (tab: 'info' | 'sensors') => void
+  setActiveTab: (tab: 'info' | 'sensors' | 'network') => void
 }
 
 export const useHardwareStore = create<HardwareState>((set) => ({
