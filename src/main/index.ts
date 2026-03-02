@@ -7,6 +7,7 @@ import { registerCleanerIPC } from './ipc/cleaner'
 import { registerBoosterIPC } from './ipc/booster'
 import { registerOptimizerIPC } from './ipc/optimizer'
 import { registerUninstallerIPC } from './ipc/uninstaller'
+import { registerProcessIPC } from './ipc/process'
 import { registerSettingsIPC } from './ipc/settings'
 import { getSettings } from './services/settingsService'
 
@@ -186,6 +187,7 @@ app.whenReady().then(() => {
   registerBoosterIPC()
   registerOptimizerIPC()
   registerUninstallerIPC()
+  registerProcessIPC()
   registerSettingsIPC()
   createWindow()
   createTray()

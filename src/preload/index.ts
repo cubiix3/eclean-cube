@@ -81,6 +81,13 @@ const api = {
       ipcRenderer.invoke('uninstaller:cleanLeftovers', items),
     getHistory: () => ipcRenderer.invoke('uninstaller:getHistory')
   },
+  process: {
+    getAll: () => ipcRenderer.invoke('process:getAll'),
+    kill: (pid: number) => ipcRenderer.invoke('process:kill', pid),
+    getCount: () => ipcRenderer.invoke('process:getCount'),
+    getRAMDetails: () => ipcRenderer.invoke('process:getRAMDetails'),
+    optimizeRAM: () => ipcRenderer.invoke('process:optimizeRAM')
+  },
   settings: {
     get: () => ipcRenderer.invoke('settings:get'),
     update: (partial: any) => ipcRenderer.invoke('settings:update', partial),

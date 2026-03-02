@@ -10,6 +10,7 @@ import CleanerPage from './modules/cleaner/CleanerPage'
 import BoosterPage from './modules/booster/BoosterPage'
 import OptimizerPage from './modules/optimizer/OptimizerPage'
 import UninstallerPage from './modules/uninstaller/UninstallerPage'
+import ProcessPage from './modules/process/ProcessPage'
 import SettingsPage from './modules/settings/SettingsPage'
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
                 <Route path="/hardware" element={<PageTransition><HardwarePage /></PageTransition>} />
                 <Route path="/booster" element={<PageTransition><BoosterPage /></PageTransition>} />
                 <Route path="/uninstaller" element={<PageTransition><UninstallerPage /></PageTransition>} />
+                <Route path="/process" element={<PageTransition><ProcessPage /></PageTransition>} />
                 <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
               </Routes>
             </AnimatePresence>

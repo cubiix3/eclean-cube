@@ -312,6 +312,46 @@ interface UninstallerAPI {
 }
 
 // ──────────────────────────────────────────────
+// Process Manager Types
+// ──────────────────────────────────────────────
+
+interface ProcessInfo {
+  pid: number
+  name: string
+  cpu: number
+  ram: number
+  status: string
+}
+
+interface ProcessKillResult {
+  success: boolean
+  error?: string
+}
+
+interface RAMDetails {
+  totalMB: number
+  usedMB: number
+  availableMB: number
+  cachedMB: number
+  percentUsed: number
+  topProcesses: { name: string; pid: number; ramMB: number }[]
+}
+
+interface RAMOptimizeResult {
+  freedMB: number
+  beforeMB: number
+  afterMB: number
+}
+
+interface ProcessAPI {
+  getAll: () => Promise<ProcessInfo[]>
+  kill: (pid: number) => Promise<ProcessKillResult>
+  getCount: () => Promise<number>
+  getRAMDetails: () => Promise<RAMDetails>
+  optimizeRAM: () => Promise<RAMOptimizeResult>
+}
+
+// ──────────────────────────────────────────────
 // Settings Types
 // ──────────────────────────────────────────────
 
@@ -359,6 +399,7 @@ interface ElectronAPI {
   booster: BoosterAPI
   optimizer: OptimizerAPI
   uninstaller: UninstallerAPI
+  process: ProcessAPI
   settings: SettingsAPI
   tray: TrayAPI
 }

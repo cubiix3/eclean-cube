@@ -5,6 +5,7 @@ import {
   Cpu,
   Rocket,
   PackageX,
+  Activity,
   Settings,
   type LucideIcon
 } from 'lucide-react'
@@ -24,7 +25,8 @@ const navItems: NavItem[] = [
   { id: 'cleaner', icon: Trash2, label: 'Cleaner', path: '/cleaner' },
   { id: 'hardware', icon: Cpu, label: 'Your PC', path: '/hardware' },
   { id: 'booster', icon: Rocket, label: 'Booster', path: '/booster' },
-  { id: 'uninstaller', icon: PackageX, label: 'Uninstaller', path: '/uninstaller' }
+  { id: 'uninstaller', icon: PackageX, label: 'Uninstaller', path: '/uninstaller' },
+  { id: 'process', icon: Activity, label: 'Processes', path: '/process' }
 ]
 
 const settingsItem: NavItem = {
