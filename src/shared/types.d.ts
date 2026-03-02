@@ -311,6 +311,46 @@ interface UninstallerAPI {
   getHistory: () => Promise<UninstallerHistoryEntry[]>
 }
 
+// ──────────────────────────────────────────────
+// Settings Types
+// ──────────────────────────────────────────────
+
+interface AppSettings {
+  general: {
+    launchAtStartup: boolean
+    minimizeToTray: boolean
+    showNotifications: boolean
+  }
+  appearance: {
+    accentColor: string
+    animations: boolean
+    compactMode: boolean
+  }
+  cleaner: {
+    autoScan: boolean
+    safeDeleteOnly: boolean
+  }
+  advanced: {
+    confirmDangerousActions: boolean
+    keepBackupDays: number
+  }
+}
+
+interface SettingsAPI {
+  get: () => Promise<AppSettings>
+  update: (partial: Partial<AppSettings>) => Promise<AppSettings>
+  reset: () => Promise<AppSettings>
+}
+
+// ──────────────────────────────────────────────
+// Tray Types
+// ──────────────────────────────────────────────
+
+interface TrayAPI {
+  updateHealthScore: (score: number) => void
+  onQuickClean: (callback: () => void) => void
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
@@ -319,6 +359,8 @@ interface ElectronAPI {
   booster: BoosterAPI
   optimizer: OptimizerAPI
   uninstaller: UninstallerAPI
+  settings: SettingsAPI
+  tray: TrayAPI
 }
 
 declare global {

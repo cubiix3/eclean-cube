@@ -10,6 +10,13 @@ export default function DashboardPage() {
   const { overview, sensorHistory, healthScore, isLoading, fetchOverview, addSensorData } =
     useDashboardStore()
 
+  // Send health score to tray whenever it changes
+  useEffect(() => {
+    if (healthScore > 0) {
+      window.api.tray.updateHealthScore(healthScore)
+    }
+  }, [healthScore])
+
   useEffect(() => {
     fetchOverview()
     const refreshInterval = setInterval(fetchOverview, 30000)

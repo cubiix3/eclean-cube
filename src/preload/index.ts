@@ -80,6 +80,17 @@ const api = {
     cleanLeftovers: (items: { path: string; type: 'file' | 'registry' }[]) =>
       ipcRenderer.invoke('uninstaller:cleanLeftovers', items),
     getHistory: () => ipcRenderer.invoke('uninstaller:getHistory')
+  },
+  settings: {
+    get: () => ipcRenderer.invoke('settings:get'),
+    update: (partial: any) => ipcRenderer.invoke('settings:update', partial),
+    reset: () => ipcRenderer.invoke('settings:reset')
+  },
+  tray: {
+    updateHealthScore: (score: number) => ipcRenderer.send('tray:updateHealthScore', score),
+    onQuickClean: (callback: () => void) => {
+      ipcRenderer.on('tray:quickClean', () => callback())
+    }
   }
 }
 
