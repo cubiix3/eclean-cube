@@ -24,6 +24,13 @@ function createWindow(): void {
     mainWindow?.show()
   })
 
+  mainWindow.on('maximize', () => {
+    mainWindow?.webContents.send('window:maximized')
+  })
+  mainWindow.on('unmaximize', () => {
+    mainWindow?.webContents.send('window:unmaximized')
+  })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
