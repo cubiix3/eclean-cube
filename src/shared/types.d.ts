@@ -200,12 +200,125 @@ interface BoosterAPI {
   setTaskEnabled: (taskName: string, taskPath: string, enabled: boolean) => Promise<void>
 }
 
+// ──────────────────────────────────────────────
+// Optimizer Types
+// ──────────────────────────────────────────────
+
+interface OptimizerTweakDefinition {
+  id: string
+  name: string
+  description: string
+  category: string
+  riskLevel: 'safe' | 'moderate' | 'advanced'
+  checkCommand: string
+  applyCommand: string
+  revertCommand: string
+}
+
+interface OptimizerCategoryDefinition {
+  id: string
+  name: string
+  description: string
+  icon: string
+}
+
+interface OptimizerBackupEntry {
+  originalValue: string
+  appliedAt: number
+}
+
+type OptimizerBackupData = Record<string, OptimizerBackupEntry>
+
+interface OptimizerApplyResult {
+  success: boolean
+  error?: string
+}
+
+interface OptimizerAPI {
+  getTweaks: () => Promise<OptimizerTweakDefinition[]>
+  getCategories: () => Promise<OptimizerCategoryDefinition[]>
+  checkCategory: (categoryId: string) => Promise<Record<string, boolean>>
+  checkAll: () => Promise<Record<string, boolean>>
+  applyTweak: (tweakId: string) => Promise<OptimizerApplyResult>
+  applyTweaks: (tweakIds: string[]) => Promise<Record<string, OptimizerApplyResult>>
+  revertTweak: (tweakId: string) => Promise<OptimizerApplyResult>
+  revertAll: () => Promise<Record<string, OptimizerApplyResult>>
+  getBackup: () => Promise<OptimizerBackupData>
+}
+
+// ──────────────────────────────────────────────
+// Uninstaller Types
+// ──────────────────────────────────────────────
+
+interface UninstallerInstalledApp {
+  DisplayName: string
+  DisplayVersion: string | null
+  Publisher: string | null
+  InstallDate: string | null
+  EstimatedSize: number | null
+  UninstallString: string | null
+  InstallLocation: string | null
+}
+
+interface UninstallerUwpApp {
+  Name: string
+  PackageFullName: string
+  Version: string
+  Publisher: string
+  InstallLocation: string | null
+}
+
+interface UninstallerBrowserExtension {
+  id: string
+  name: string
+  version: string
+  description: string
+  browser: string
+}
+
+interface UninstallerLeftoverItem {
+  path: string
+  type: 'file' | 'registry'
+  confidence: 'high' | 'medium' | 'low'
+  size?: number
+}
+
+interface UninstallerHistoryEntry {
+  appName: string
+  timestamp: number
+  type: 'win32' | 'uwp'
+}
+
+interface UninstallerCleanResult {
+  success: string[]
+  errors: string[]
+}
+
+interface UninstallerResult {
+  success: boolean
+  error?: string
+}
+
+interface UninstallerAPI {
+  getApps: () => Promise<UninstallerInstalledApp[]>
+  uninstall: (uninstallString: string, appName: string) => Promise<UninstallerResult>
+  getUwpApps: () => Promise<UninstallerUwpApp[]>
+  removeUwp: (packageFullName: string, appName: string) => Promise<UninstallerResult>
+  getExtensions: () => Promise<UninstallerBrowserExtension[]>
+  openExtensionsPage: (browser: string) => Promise<void>
+  scanLeftovers: (appName: string) => Promise<UninstallerLeftoverItem[]>
+  cleanLeftovers: (items: { path: string; type: 'file' | 'registry' }[]) => Promise<UninstallerCleanResult>
+  getHistory: () => Promise<UninstallerHistoryEntry[]>
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
   hardware: HardwareAPI
   cleaner: CleanerAPI
   booster: BoosterAPI
+  optimizer: OptimizerAPI
+  uninstaller: UninstallerAPI
 }
 
 declare global {

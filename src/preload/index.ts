@@ -55,6 +55,31 @@ const api = {
     getScheduledTasks: () => ipcRenderer.invoke('booster:getScheduledTasks'),
     setTaskEnabled: (taskName: string, taskPath: string, enabled: boolean) =>
       ipcRenderer.invoke('booster:setTaskEnabled', taskName, taskPath, enabled)
+  },
+  optimizer: {
+    getTweaks: () => ipcRenderer.invoke('optimizer:getTweaks'),
+    getCategories: () => ipcRenderer.invoke('optimizer:getCategories'),
+    checkCategory: (categoryId: string) => ipcRenderer.invoke('optimizer:checkCategory', categoryId),
+    checkAll: () => ipcRenderer.invoke('optimizer:checkAll'),
+    applyTweak: (tweakId: string) => ipcRenderer.invoke('optimizer:applyTweak', tweakId),
+    applyTweaks: (tweakIds: string[]) => ipcRenderer.invoke('optimizer:applyTweaks', tweakIds),
+    revertTweak: (tweakId: string) => ipcRenderer.invoke('optimizer:revertTweak', tweakId),
+    revertAll: () => ipcRenderer.invoke('optimizer:revertAll'),
+    getBackup: () => ipcRenderer.invoke('optimizer:getBackup')
+  },
+  uninstaller: {
+    getApps: () => ipcRenderer.invoke('uninstaller:getApps'),
+    uninstall: (uninstallString: string, appName: string) =>
+      ipcRenderer.invoke('uninstaller:uninstall', uninstallString, appName),
+    getUwpApps: () => ipcRenderer.invoke('uninstaller:getUwpApps'),
+    removeUwp: (packageFullName: string, appName: string) =>
+      ipcRenderer.invoke('uninstaller:removeUwp', packageFullName, appName),
+    getExtensions: () => ipcRenderer.invoke('uninstaller:getExtensions'),
+    openExtensionsPage: (browser: string) => ipcRenderer.invoke('uninstaller:openExtensionsPage', browser),
+    scanLeftovers: (appName: string) => ipcRenderer.invoke('uninstaller:scanLeftovers', appName),
+    cleanLeftovers: (items: { path: string; type: 'file' | 'registry' }[]) =>
+      ipcRenderer.invoke('uninstaller:cleanLeftovers', items),
+    getHistory: () => ipcRenderer.invoke('uninstaller:getHistory')
   }
 }
 

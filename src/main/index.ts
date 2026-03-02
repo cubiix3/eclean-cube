@@ -5,6 +5,8 @@ import { registerSystemIPC } from './ipc/system'
 import { registerHardwareIPC } from './ipc/hardware'
 import { registerCleanerIPC } from './ipc/cleaner'
 import { registerBoosterIPC } from './ipc/booster'
+import { registerOptimizerIPC } from './ipc/optimizer'
+import { registerUninstallerIPC } from './ipc/uninstaller'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -64,6 +66,8 @@ app.whenReady().then(() => {
   registerHardwareIPC()
   registerCleanerIPC()
   registerBoosterIPC()
+  registerOptimizerIPC()
+  registerUninstallerIPC()
   createWindow()
 })
 
