@@ -5,6 +5,7 @@ import {
   Cpu,
   Rocket,
   PackageX,
+  Settings,
   type LucideIcon
 } from 'lucide-react'
 import { useNavigationStore, type ModuleId } from '@/stores/navigationStore'
@@ -26,6 +27,13 @@ const navItems: NavItem[] = [
   { id: 'uninstaller', icon: PackageX, label: 'Uninstaller', path: '/uninstaller' }
 ]
 
+const settingsItem: NavItem = {
+  id: 'settings',
+  icon: Settings,
+  label: 'Settings',
+  path: '/settings'
+}
+
 export default function Sidebar() {
   const { activeModule, setActiveModule } = useNavigationStore()
   const navigate = useNavigate()
@@ -33,6 +41,36 @@ export default function Sidebar() {
   const handleNav = (item: NavItem) => {
     setActiveModule(item.id)
     navigate(item.path)
+  }
+
+  const renderNavButton = (item: NavItem) => {
+    const isActive = activeModule === item.id
+    const Icon = item.icon
+    return (
+      <button
+        key={item.id}
+        onClick={() => handleNav(item)}
+        className={`
+          relative w-12 h-12 rounded-xl flex items-center justify-center
+          transition-all duration-200 group
+          ${isActive
+            ? 'bg-gradient-to-br from-blue-500/20 to-cyan-400/20 text-blue-400'
+            : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+          }
+        `}
+        title={item.label}
+      >
+        {isActive && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-gradient-to-b from-blue-500 to-cyan-400 rounded-r-full" />
+        )}
+        <Icon size={20} />
+
+        {/* Tooltip */}
+        <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#1e1e2e] text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 border border-white/10">
+          {item.label}
+        </div>
+      </button>
+    )
   }
 
   return (
@@ -44,39 +82,16 @@ export default function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 flex flex-col items-center gap-1">
-        {navItems.map((item) => {
-          const isActive = activeModule === item.id
-          const Icon = item.icon
-          return (
-            <button
-              key={item.id}
-              onClick={() => handleNav(item)}
-              className={`
-                relative w-12 h-12 rounded-xl flex items-center justify-center
-                transition-all duration-200 group
-                ${isActive
-                  ? 'bg-gradient-to-br from-blue-500/20 to-cyan-400/20 text-blue-400'
-                  : 'text-white/40 hover:text-white/70 hover:bg-white/5'
-                }
-              `}
-              title={item.label}
-            >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-gradient-to-b from-blue-500 to-cyan-400 rounded-r-full" />
-              )}
-              <Icon size={20} />
-
-              {/* Tooltip */}
-              <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#1e1e2e] text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 border border-white/10">
-                {item.label}
-              </div>
-            </button>
-          )
-        })}
+        {navItems.map(renderNavButton)}
       </nav>
 
-      {/* Version */}
-      <div className="text-[10px] text-white/20 mt-4">v1.0.0</div>
+      {/* Settings (separated at bottom) */}
+      <div className="flex flex-col items-center gap-3 mt-4 pt-4 border-t border-white/5">
+        {renderNavButton(settingsItem)}
+
+        {/* Version */}
+        <div className="text-[10px] text-white/20">v1.0.0</div>
+      </div>
     </div>
   )
 }
