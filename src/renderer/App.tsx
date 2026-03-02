@@ -6,13 +6,11 @@ import PageTransition from './components/PageTransition'
 import DashboardPage from './modules/dashboard/DashboardPage'
 import HardwarePage from './modules/hardware/HardwarePage'
 import CleanerPage from './modules/cleaner/CleanerPage'
+import BoosterPage from './modules/booster/BoosterPage'
 
 // Placeholder pages
 function OptimizerPage() {
   return <PageTransition><div className="text-white text-xl">Optimizer</div></PageTransition>
-}
-function BoosterPage() {
-  return <PageTransition><div className="text-white text-xl">Booster</div></PageTransition>
 }
 function UninstallerPage() {
   return <PageTransition><div className="text-white text-xl">Uninstaller</div></PageTransition>
@@ -32,7 +30,7 @@ export default function App() {
                 <Route path="/optimizer" element={<OptimizerPage />} />
                 <Route path="/cleaner" element={<PageTransition><CleanerPage /></PageTransition>} />
                 <Route path="/hardware" element={<PageTransition><HardwarePage /></PageTransition>} />
-                <Route path="/booster" element={<BoosterPage />} />
+                <Route path="/booster" element={<PageTransition><BoosterPage /></PageTransition>} />
                 <Route path="/uninstaller" element={<UninstallerPage />} />
               </Routes>
             </AnimatePresence>
