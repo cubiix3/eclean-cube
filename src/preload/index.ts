@@ -123,6 +123,19 @@ const api = {
     full: () => ipcRenderer.invoke('benchmark:full'),
     history: () => ipcRenderer.invoke('benchmark:history')
   },
+  alerts: {
+    startMonitoring: (cpuThreshold: number, gpuThreshold: number) =>
+      ipcRenderer.invoke('alerts:startMonitoring', cpuThreshold, gpuThreshold),
+    stopMonitoring: () => ipcRenderer.invoke('alerts:stopMonitoring'),
+    setThresholds: (cpu: number, gpu: number) =>
+      ipcRenderer.invoke('alerts:setThresholds', cpu, gpu),
+    onTempWarning: (callback: (data: any) => void) => {
+      ipcRenderer.on('alerts:tempWarning', (_event, data) => callback(data))
+    },
+    removeTempWarningListener: () => {
+      ipcRenderer.removeAllListeners('alerts:tempWarning')
+    }
+  },
   tray: {
     updateHealthScore: (score: number) => ipcRenderer.send('tray:updateHealthScore', score),
     onQuickClean: (callback: () => void) => {

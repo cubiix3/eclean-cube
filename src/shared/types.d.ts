@@ -490,6 +490,30 @@ interface AppSettings {
     confirmDangerousActions: boolean
     keepBackupDays: number
   }
+  monitoring: {
+    tempAlertsEnabled: boolean
+    cpuThreshold: number
+    gpuThreshold: number
+  }
+}
+
+// ──────────────────────────────────────────────
+// Temperature Alert Types
+// ──────────────────────────────────────────────
+
+interface TempWarning {
+  type: 'cpu' | 'gpu'
+  temp: number
+  threshold: number
+  message: string
+}
+
+interface AlertsAPI {
+  startMonitoring: (cpuThreshold: number, gpuThreshold: number) => Promise<void>
+  stopMonitoring: () => Promise<void>
+  setThresholds: (cpu: number, gpu: number) => Promise<void>
+  onTempWarning: (callback: (data: TempWarning) => void) => void
+  removeTempWarningListener: () => void
 }
 
 interface SettingsAPI {
@@ -521,6 +545,7 @@ interface ElectronAPI {
   settings: SettingsAPI
   duplicate: DuplicateAPI
   network: NetworkAPI
+  alerts: AlertsAPI
   tray: TrayAPI
 }
 

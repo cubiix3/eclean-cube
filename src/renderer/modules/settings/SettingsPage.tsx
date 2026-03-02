@@ -21,9 +21,12 @@ import {
   PackageX,
   Activity,
   Gauge,
-  Settings
+  Settings,
+  Thermometer,
+  ThermometerSun
 } from 'lucide-react'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { useToastStore } from '@/stores/toastStore'
 
 const ACCENT_COLORS = [
   { name: 'Blue', value: '#3b82f6' },
@@ -343,6 +346,108 @@ export default function SettingsPage() {
           </SectionCard>
         </motion.div>
       </div>
+
+      {/* Monitoring */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <SectionCard title="Monitoring">
+          <SettingRow
+            icon={Thermometer}
+            label="Enable temperature alerts"
+            description="Get notified when CPU/GPU temperatures exceed thresholds"
+          >
+            <Toggle
+              enabled={settings.monitoring.tempAlertsEnabled}
+              onChange={(val) => {
+                updateSettings({
+                  monitoring: { ...settings.monitoring, tempAlertsEnabled: val }
+                })
+                if (val) {
+                  window.api.alerts.startMonitoring(
+                    settings.monitoring.cpuThreshold,
+                    settings.monitoring.gpuThreshold
+                  )
+                  window.api.alerts.onTempWarning((data) => {
+                    useToastStore.getState().addToast({
+                      type: 'warning',
+                      title: `${data.type.toUpperCase()} Temperature Warning`,
+                      message: data.message
+                    })
+                  })
+                  useToastStore.getState().addToast({
+                    type: 'success',
+                    title: 'Temperature monitoring enabled'
+                  })
+                } else {
+                  window.api.alerts.stopMonitoring()
+                  window.api.alerts.removeTempWarningListener()
+                  useToastStore.getState().addToast({
+                    type: 'info',
+                    title: 'Temperature monitoring disabled'
+                  })
+                }
+              }}
+            />
+          </SettingRow>
+          <SettingRow
+            icon={Cpu}
+            label="CPU threshold"
+            description={`Alert when CPU exceeds ${settings.monitoring.cpuThreshold}°C`}
+          >
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min={60}
+                max={100}
+                value={settings.monitoring.cpuThreshold}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10)
+                  updateSettings({
+                    monitoring: { ...settings.monitoring, cpuThreshold: val }
+                  })
+                  if (settings.monitoring.tempAlertsEnabled) {
+                    window.api.alerts.setThresholds(val, settings.monitoring.gpuThreshold)
+                  }
+                }}
+                className="w-24 accent-blue-500"
+              />
+              <span className="text-sm text-white/60 w-10 text-right">
+                {settings.monitoring.cpuThreshold}°C
+              </span>
+            </div>
+          </SettingRow>
+          <SettingRow
+            icon={ThermometerSun}
+            label="GPU threshold"
+            description={`Alert when GPU exceeds ${settings.monitoring.gpuThreshold}°C`}
+          >
+            <div className="flex items-center gap-3">
+              <input
+                type="range"
+                min={60}
+                max={100}
+                value={settings.monitoring.gpuThreshold}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10)
+                  updateSettings({
+                    monitoring: { ...settings.monitoring, gpuThreshold: val }
+                  })
+                  if (settings.monitoring.tempAlertsEnabled) {
+                    window.api.alerts.setThresholds(settings.monitoring.cpuThreshold, val)
+                  }
+                }}
+                className="w-24 accent-blue-500"
+              />
+              <span className="text-sm text-white/60 w-10 text-right">
+                {settings.monitoring.gpuThreshold}°C
+              </span>
+            </div>
+          </SettingRow>
+        </SectionCard>
+      </motion.div>
 
       {/* Keyboard Shortcuts */}
       <motion.div

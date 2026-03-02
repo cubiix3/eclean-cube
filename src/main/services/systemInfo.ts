@@ -78,3 +78,24 @@ export async function getRamUsage(): Promise<number> {
   const free = result.FreePhysicalMemory
   return Math.round(((total - free) / total) * 100)
 }
+
+export interface TemperatureData {
+  cpuTemp: number
+  gpuTemp: number
+}
+
+export async function getTemperatures(): Promise<TemperatureData> {
+  const [cpuResult, gpuResult] = await Promise.all([
+    runPowerShell(
+      '$temp = Get-CimInstance MSAcpi_ThermalZoneTemperature -Namespace root/wmi -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty CurrentTemperature; if ($temp) { ($temp - 2732) / 10 } else { -1 }'
+    ).catch(() => '-1'),
+    runPowerShell(
+      "$nvidiaSmi = 'C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe'; if (Test-Path $nvidiaSmi) { & $nvidiaSmi --query-gpu=temperature.gpu --format=csv,noheader,nounits } else { -1 }"
+    ).catch(() => '-1')
+  ])
+
+  const cpuTemp = parseFloat(cpuResult) || -1
+  const gpuTemp = parseFloat(gpuResult) || -1
+
+  return { cpuTemp, gpuTemp }
+}

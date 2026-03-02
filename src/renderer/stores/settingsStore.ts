@@ -20,6 +20,11 @@ interface AppSettings {
     confirmDangerousActions: boolean
     keepBackupDays: number
   }
+  monitoring: {
+    tempAlertsEnabled: boolean
+    cpuThreshold: number
+    gpuThreshold: number
+  }
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
@@ -40,6 +45,11 @@ const DEFAULT_SETTINGS: AppSettings = {
   advanced: {
     confirmDangerousActions: true,
     keepBackupDays: 7
+  },
+  monitoring: {
+    tempAlertsEnabled: false,
+    cpuThreshold: 85,
+    gpuThreshold: 85
   }
 }
 

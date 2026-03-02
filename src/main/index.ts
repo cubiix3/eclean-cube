@@ -13,8 +13,10 @@ import { registerDuplicateIPC } from './ipc/duplicate'
 import { registerNetworkIPC } from './ipc/network'
 import { registerGamingIPC } from './ipc/gaming'
 import { registerBenchmarkIPC } from './ipc/benchmark'
+import { registerAlertsIPC } from './ipc/alerts'
 import { getSettings } from './services/settingsService'
 import { closePowerShell } from './services/powershell'
+import { stopTempMonitoring } from './services/alertService'
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -218,12 +220,14 @@ app.whenReady().then(() => {
   registerNetworkIPC()
   registerGamingIPC()
   registerBenchmarkIPC()
+  registerAlertsIPC()
   createWindow()
   createTray()
 })
 
 app.on('before-quit', () => {
   isQuitting = true
+  stopTempMonitoring()
   closePowerShell()
 })
 
