@@ -108,10 +108,56 @@ interface HardwareAPI {
   onSensorData: (callback: (data: DetailedSensors) => void) => void
 }
 
+interface CleanerJunkItem {
+  path: string
+  name: string
+  size: number
+  selected: boolean
+}
+
+interface CleanerJunkCategory {
+  id: string
+  name: string
+  items: CleanerJunkItem[]
+  totalSize: number
+}
+
+interface CleanerLargeFile {
+  path: string
+  name: string
+  size: number
+  modified: string
+}
+
+interface CleanerCleanResult {
+  cleaned: number
+  errors: string[]
+}
+
+interface CleanerShredResult {
+  success: string[]
+  errors: string[]
+}
+
+interface CleanerAPI {
+  scanCategory: (categoryId: string) => Promise<CleanerJunkCategory>
+  scanAll: () => Promise<CleanerJunkCategory[]>
+  clean: (paths: string[]) => Promise<CleanerCleanResult>
+  findLargeFiles: (drive: string, minSize: number) => Promise<CleanerLargeFile[]>
+  getDrives: () => Promise<string[]>
+  getRecycleBinSize: () => Promise<number>
+  emptyRecycleBin: () => Promise<void>
+  shredFiles: (filePaths: string[]) => Promise<CleanerShredResult>
+  openFolder: (filePath: string) => void
+  deleteFile: (filePath: string) => Promise<void>
+  openFileDialog: () => Promise<string[]>
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
   hardware: HardwareAPI
+  cleaner: CleanerAPI
 }
 
 declare global {

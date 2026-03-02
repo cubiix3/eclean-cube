@@ -26,6 +26,20 @@ const api = {
     onSensorData: (callback: (data: any) => void) => {
       ipcRenderer.on('hardware:sensorData', (_event, data) => callback(data))
     }
+  },
+  cleaner: {
+    scanCategory: (categoryId: string) => ipcRenderer.invoke('cleaner:scanCategory', categoryId),
+    scanAll: () => ipcRenderer.invoke('cleaner:scanAll'),
+    clean: (paths: string[]) => ipcRenderer.invoke('cleaner:clean', paths),
+    findLargeFiles: (drive: string, minSize: number) =>
+      ipcRenderer.invoke('cleaner:findLargeFiles', drive, minSize),
+    getDrives: () => ipcRenderer.invoke('cleaner:getDrives'),
+    getRecycleBinSize: () => ipcRenderer.invoke('cleaner:getRecycleBinSize'),
+    emptyRecycleBin: () => ipcRenderer.invoke('cleaner:emptyRecycleBin'),
+    shredFiles: (filePaths: string[]) => ipcRenderer.invoke('cleaner:shredFiles', filePaths),
+    openFolder: (filePath: string) => ipcRenderer.send('cleaner:openFolder', filePath),
+    deleteFile: (filePath: string) => ipcRenderer.invoke('cleaner:deleteFile', filePath),
+    openFileDialog: () => ipcRenderer.invoke('cleaner:openFileDialog')
   }
 }
 

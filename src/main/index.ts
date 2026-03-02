@@ -3,6 +3,7 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { registerSystemIPC } from './ipc/system'
 import { registerHardwareIPC } from './ipc/hardware'
+import { registerCleanerIPC } from './ipc/cleaner'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -60,6 +61,7 @@ ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized())
 app.whenReady().then(() => {
   registerSystemIPC()
   registerHardwareIPC()
+  registerCleanerIPC()
   createWindow()
 })
 
