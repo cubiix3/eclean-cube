@@ -8,7 +8,7 @@ export interface ShredderFile {
 }
 
 interface CleanerState {
-  activeTab: 'junk' | 'large' | 'shredder'
+  activeTab: 'junk' | 'large' | 'shredder' | 'duplicates'
   // Junk cleanup
   categories: CleanerJunkCategory[]
   isScanning: boolean
@@ -26,7 +26,7 @@ interface CleanerState {
   shredResult: CleanerShredResult | null
 
   // Actions
-  setActiveTab: (tab: 'junk' | 'large' | 'shredder') => void
+  setActiveTab: (tab: 'junk' | 'large' | 'shredder' | 'duplicates') => void
   scanAll: () => Promise<void>
   scanCategory: (categoryId: string) => Promise<void>
   toggleItem: (categoryId: string, itemPath: string) => void
