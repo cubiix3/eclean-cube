@@ -15,7 +15,7 @@
     "paths": {
       "@/*": ["src/renderer/*"]
     },
-    "types": ["electron-vite/client"]
+    "types": ["vite/client"]
   },
   "include": ["src/renderer/**/*", "src/shared/**/*"]
 }
