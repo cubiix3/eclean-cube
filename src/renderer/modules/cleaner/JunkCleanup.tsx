@@ -13,13 +13,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { useCleanerStore } from '@/stores/cleanerStore'
-
-function formatSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB', 'TB']
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return `${(bytes / Math.pow(1024, i)).toFixed(i > 0 ? 1 : 0)} ${units[i]}`
-}
+import { formatSize } from '@/utils/format'
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   browsers: <Globe className="w-5 h-5" />,
