@@ -12,6 +12,7 @@ import { registerSettingsIPC } from './ipc/settings'
 import { registerDuplicateIPC } from './ipc/duplicate'
 import { registerNetworkIPC } from './ipc/network'
 import { getSettings } from './services/settingsService'
+import { closePowerShell } from './services/powershell'
 
 let mainWindow: BrowserWindow | null = null
 let tray: Tray | null = null
@@ -199,8 +200,10 @@ app.whenReady().then(() => {
 
 app.on('before-quit', () => {
   isQuitting = true
+  closePowerShell()
 })
 
 app.on('window-all-closed', () => {
+  closePowerShell()
   app.quit()
 })
