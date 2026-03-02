@@ -8,6 +8,7 @@ interface WindowAPI {
 
 interface SystemAPI {
   getOverview: () => Promise<SystemOverview>
+  isAdmin: () => Promise<boolean>
   startSensorStream: () => void
   stopSensorStream: () => void
   onSensorData: (callback: (data: SensorData) => void) => void

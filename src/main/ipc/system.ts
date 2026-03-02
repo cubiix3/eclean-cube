@@ -1,5 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron'
 import { getSystemOverview, getCpuUsage, getRamUsage } from '../services/systemInfo'
+import { isRunningAsAdmin } from '../services/powershell'
 
 let sensorInterval: ReturnType<typeof setInterval> | null = null
 
@@ -33,5 +34,9 @@ export function registerSystemIPC(): void {
       clearInterval(sensorInterval)
       sensorInterval = null
     }
+  })
+
+  ipcMain.handle('system:isAdmin', async () => {
+    return await isRunningAsAdmin()
   })
 }

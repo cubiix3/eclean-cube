@@ -13,6 +13,7 @@ const api = {
   },
   system: {
     getOverview: () => ipcRenderer.invoke('system:getOverview'),
+    isAdmin: () => ipcRenderer.invoke('system:isAdmin'),
     startSensorStream: () => ipcRenderer.send('system:startSensorStream'),
     stopSensorStream: () => ipcRenderer.send('system:stopSensorStream'),
     onSensorData: (callback: (data: any) => void) => {

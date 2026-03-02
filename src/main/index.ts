@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain, Tray, Menu, nativeImage } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, Tray, Menu, nativeImage, session } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { registerSystemIPC } from './ipc/system'
@@ -184,6 +184,26 @@ ipcMain.on('tray:updateHealthScore', (_event, score: number) => {
 })
 
 app.whenReady().then(() => {
+  // Content Security Policy - production only
+  if (!is.dev) {
+    session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          'Content-Security-Policy': [
+            [
+              "default-src 'self'",
+              "script-src 'self'",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data:",
+              "font-src 'self'"
+            ].join('; ')
+          ]
+        }
+      })
+    })
+  }
+
   registerSystemIPC()
   registerHardwareIPC()
   registerCleanerIPC()
