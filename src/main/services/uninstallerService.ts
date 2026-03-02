@@ -428,3 +428,124 @@ export async function cleanLeftovers(
 export function getUninstallHistory(): UninstallHistoryEntry[] {
   return loadHistory()
 }
+
+// ──────────────────────────────────────────────
+// Browser Extension Security Scanner
+// ──────────────────────────────────────────────
+
+export interface ExtensionSecurityInfo {
+  id: string
+  name: string
+  browser: string
+  version: string
+  permissions: string[]
+  riskScore: number // 0-100
+  riskLevel: 'safe' | 'moderate' | 'dangerous'
+  warnings: string[]
+}
+
+const DANGEROUS_PERMISSIONS = [
+  'webRequest', 'webRequestBlocking', 'nativeMessaging', 'debugger',
+  'proxy', 'privacy', 'management', 'downloads', 'history',
+  'bookmarks', 'topSites', 'browsingData'
+]
+const MODERATE_PERMISSIONS = [
+  'tabs', 'cookies', 'storage', 'notifications', 'clipboardRead',
+  'clipboardWrite', 'geolocation', 'identity'
+]
+
+function calculateExtensionRisk(permissions: string[], hostPermissions: string[]): { score: number; warnings: string[] } {
+  let score = 0
+  const warnings: string[] = []
+
+  for (const perm of permissions) {
+    if (DANGEROUS_PERMISSIONS.includes(perm)) {
+      score += 20
+      warnings.push(`High-risk permission: ${perm}`)
+    } else if (MODERATE_PERMISSIONS.includes(perm)) {
+      score += 8
+    }
+  }
+
+  // Check for broad host access
+  for (const host of hostPermissions) {
+    if (host === '<all_urls>' || host === '*://*/*') {
+      score += 30
+      warnings.push('Can access ALL websites')
+    } else if (host.includes('*')) {
+      score += 5
+    }
+  }
+
+  return { score: Math.min(score, 100), warnings }
+}
+
+function readManifestFull(manifestPath: string): any | null {
+  try {
+    if (!existsSync(manifestPath)) return null
+    return JSON.parse(readFileSync(manifestPath, 'utf-8'))
+  } catch {
+    return null
+  }
+}
+
+export function scanExtensionSecurity(): ExtensionSecurityInfo[] {
+  const localAppData = process.env.LOCALAPPDATA || ''
+  const results: ExtensionSecurityInfo[] = []
+
+  const browsers: { name: string; extPath: string }[] = [
+    { name: 'Chrome', extPath: join(localAppData, 'Google', 'Chrome', 'User Data', 'Default', 'Extensions') },
+    { name: 'Edge', extPath: join(localAppData, 'Microsoft', 'Edge', 'User Data', 'Default', 'Extensions') }
+  ]
+
+  for (const browser of browsers) {
+    try {
+      if (!existsSync(browser.extPath)) continue
+      const extDirs = readdirSync(browser.extPath)
+
+      for (const extId of extDirs) {
+        const extPath = join(browser.extPath, extId)
+        try {
+          if (!statSync(extPath).isDirectory()) continue
+          const versionDirs = readdirSync(extPath)
+
+          for (const version of versionDirs) {
+            const manifestPath = join(extPath, version, 'manifest.json')
+            const manifest = readManifestFull(manifestPath)
+            if (!manifest) continue
+
+            let name = manifest.name || extId
+            if (name.startsWith('__MSG_')) {
+              const msgPath = join(extPath, version, '_locales', 'en', 'messages.json')
+              try {
+                if (existsSync(msgPath)) {
+                  const msgs = JSON.parse(readFileSync(msgPath, 'utf-8'))
+                  const key = name.replace('__MSG_', '').replace('__', '')
+                  name = msgs[key]?.message || msgs[key.toLowerCase()]?.message || name
+                }
+              } catch { /* keep original */ }
+            }
+
+            const permissions = manifest.permissions || []
+            const hostPerms = manifest.host_permissions || manifest.optional_permissions || []
+            const { score, warnings } = calculateExtensionRisk(permissions, hostPerms)
+
+            results.push({
+              id: extId,
+              name,
+              browser: browser.name,
+              version: manifest.version || 'Unknown',
+              permissions,
+              riskScore: score,
+              riskLevel: score >= 50 ? 'dangerous' : score >= 20 ? 'moderate' : 'safe',
+              warnings
+            })
+            break // Only first version dir
+          }
+        } catch { continue }
+      }
+    } catch { continue }
+  }
+
+  return results.sort((a, b) => b.riskScore - a.riskScore)
+}

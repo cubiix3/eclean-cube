@@ -29,7 +29,9 @@ import {
   Plus,
   Play,
   X,
-  Timer
+  Timer,
+  Sun,
+  Moon
 } from 'lucide-react'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useToastStore } from '@/stores/toastStore'
@@ -574,8 +576,33 @@ export default function SettingsPage() {
               />
             </SettingRow>
 
-            {/* Reset */}
-            <div className="pt-4 mt-2">
+            {/* Export/Import/Reset */}
+            <div className="pt-4 mt-2 flex flex-wrap gap-2">
+              <button
+                onClick={async () => {
+                  try {
+                    const path = await window.api.settingsIO.exportDialog()
+                    if (path) useToastStore.getState().addToast({ type: 'success', title: 'Settings exported', message: path })
+                  } catch { useToastStore.getState().addToast({ type: 'error', title: 'Export failed' }) }
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                Export Settings
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const result = await window.api.settingsIO.importDialog()
+                    if (result && !result.error) {
+                      fetchSettings()
+                      useToastStore.getState().addToast({ type: 'success', title: 'Settings imported' })
+                    }
+                  } catch { useToastStore.getState().addToast({ type: 'error', title: 'Import failed' }) }
+                }}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                Import Settings
+              </button>
               <button
                 onClick={resetSettings}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"

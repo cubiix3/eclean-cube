@@ -36,6 +36,7 @@
   border-color: rgba(255, 255, 255, 0.12);
 }
 
+
 /* Disable text selection on UI elements */
 .no-drag {
   -webkit-app-region: no-drag;

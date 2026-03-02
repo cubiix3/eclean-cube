@@ -1,6 +1,8 @@
-import { Trash2, Rocket, Sliders } from 'lucide-react'
+import { useState } from 'react'
+import { Trash2, Rocket, Sliders, Wand2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useNavigationStore } from '@/stores/navigationStore'
+import { useToastStore } from '@/stores/toastStore'
 import { motion } from 'framer-motion'
 
 interface ActionCard {
@@ -21,21 +23,45 @@ const actions: ActionCard[] = [
 export default function QuickActions() {
   const navigate = useNavigate()
   const setActiveModule = useNavigationStore((s) => s.setActiveModule)
+  const addToast = useToastStore((s) => s.addToast)
+  const [isFixing, setIsFixing] = useState(false)
+  const [fixProgress, setFixProgress] = useState('')
 
   const handleClick = (action: ActionCard) => {
     setActiveModule(action.module)
     navigate(action.path)
   }
 
+  const handleOneClickFix = async () => {
+    setIsFixing(true)
+    setFixProgress('Starting...')
+    const handler = (_event: any, data: any) => {
+      setFixProgress(data.step)
+    }
+    window.api.healthFix.onProgress(handler)
+    try {
+      const result = await window.api.healthFix.run()
+      addToast({
+        type: 'success',
+        title: 'Health Fix Complete',
+        message: `${result.junkCleaned} items cleaned, ${result.tweaksApplied} tweaks applied`
+      })
+    } catch {
+      addToast({ type: 'error', title: 'Health fix failed' })
+    }
+    setIsFixing(false)
+    setFixProgress('')
+  }
+
   return (
     <div className="glass rounded-2xl p-6">
       <h3 className="text-sm text-white/40 uppercase tracking-wider mb-4">Quick Actions</h3>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         {actions.map((action, i) => (
           <motion.button
             key={action.title}
             onClick={() => handleClick(action)}
-            className={`rounded-xl p-4 bg-gradient-to-br ${action.gradient} border border-white/5 hover:border-white/15 transition-all duration-200 text-left group`}
+            className={`rounded-xl p-4 bg-gradient-to-br ${action.gradient} border border-white/5 hover:border-white/15 transition-all duration-200 text-left group cursor-pointer`}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0, y: 10 }}
@@ -47,6 +73,27 @@ export default function QuickActions() {
             <div className="text-xs text-white/40 mt-0.5">{action.description}</div>
           </motion.button>
         ))}
+        <motion.button
+          onClick={handleOneClickFix}
+          disabled={isFixing}
+          className="rounded-xl p-4 border border-white/5 hover:border-white/15 transition-all duration-200 text-left group cursor-pointer disabled:cursor-not-allowed"
+          style={{ background: `linear-gradient(135deg, var(--accent-color, #3b82f6)20, var(--accent-color, #3b82f6)10)` }}
+          whileHover={isFixing ? undefined : { scale: 1.02 }}
+          whileTap={isFixing ? undefined : { scale: 0.98 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="text-white/80 mb-2 group-hover:text-white transition-colors">
+            <Wand2 size={22} className={isFixing ? 'animate-pulse' : ''} />
+          </div>
+          <div className="text-sm font-medium text-white">
+            {isFixing ? 'Fixing...' : 'One-Click Fix'}
+          </div>
+          <div className="text-xs text-white/40 mt-0.5">
+            {isFixing ? fixProgress : 'Fix everything safe'}
+          </div>
+        </motion.button>
       </div>
     </div>
   )

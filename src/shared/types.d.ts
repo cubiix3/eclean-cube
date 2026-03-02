@@ -316,6 +316,17 @@ interface UninstallerResult {
   error?: string
 }
 
+interface ExtensionSecurityInfo {
+  id: string
+  name: string
+  browser: string
+  version: string
+  permissions: string[]
+  riskScore: number
+  riskLevel: 'safe' | 'moderate' | 'dangerous'
+  warnings: string[]
+}
+
 interface UninstallerAPI {
   getApps: () => Promise<UninstallerInstalledApp[]>
   uninstall: (uninstallString: string, appName: string) => Promise<UninstallerResult>
@@ -326,6 +337,7 @@ interface UninstallerAPI {
   scanLeftovers: (appName: string) => Promise<UninstallerLeftoverItem[]>
   cleanLeftovers: (items: { path: string; type: 'file' | 'registry' }[]) => Promise<UninstallerCleanResult>
   getHistory: () => Promise<UninstallerHistoryEntry[]>
+  scanExtensionSecurity: () => Promise<ExtensionSecurityInfo[]>
 }
 
 // ──────────────────────────────────────────────
@@ -366,6 +378,9 @@ interface ProcessAPI {
   getCount: () => Promise<number>
   getRAMDetails: () => Promise<RAMDetails>
   optimizeRAM: () => Promise<RAMOptimizeResult>
+  setAffinity: (pid: number, coreMask: number) => Promise<{ success: boolean; error?: string }>
+  setPriority: (pid: number, priority: string) => Promise<{ success: boolean; error?: string }>
+  getCoreCount: () => Promise<number>
 }
 
 // ──────────────────────────────────────────────
@@ -491,6 +506,7 @@ interface AppSettings {
   }
   appearance: {
     accentColor: string
+    theme: 'dark' | 'light'
     animations: boolean
     compactMode: boolean
   }
@@ -613,6 +629,122 @@ interface AutoAPI {
   onOptimizeResult: (callback: (data: { applied: number; errors: string[] }) => void) => void
 }
 
+// ──────────────────────────────────────────────
+// Registry Cleaner Types
+// ──────────────────────────────────────────────
+
+interface RegistryIssue {
+  path: string
+  name: string
+  type: string
+  description: string
+  severity: 'safe' | 'moderate' | 'risky'
+}
+
+interface RegistryScanResult {
+  issues: RegistryIssue[]
+  scannedKeys: number
+  scanTimeMs: number
+}
+
+interface RegistryAPI {
+  scan: () => Promise<RegistryScanResult>
+  fix: (issues: { path: string; type: string }[]) => Promise<{ fixed: number; errors: string[] }>
+}
+
+// ──────────────────────────────────────────────
+// Disk Maintenance Types
+// ──────────────────────────────────────────────
+
+interface DiskDriveInfo {
+  letter: string
+  label: string
+  mediaType: string
+  sizeGB: number
+  freeGB: number
+  lastOptimized: string | null
+}
+
+interface DefragResult {
+  drive: string
+  success: boolean
+  type: 'trim' | 'defrag'
+  message: string
+}
+
+interface DiskMaintenanceAPI {
+  getDrives: () => Promise<DiskDriveInfo[]>
+  optimize: (driveLetter: string) => Promise<DefragResult>
+  analyze: (driveLetter: string) => Promise<{ fragmentPercent: number; status: string }>
+}
+
+// ──────────────────────────────────────────────
+// File Monitor Types
+// ──────────────────────────────────────────────
+
+interface FileChangeEvent {
+  type: 'rename' | 'change'
+  path: string
+  filename: string
+  timestamp: number
+  sizeBytes?: number
+}
+
+interface FileMonitorAPI {
+  start: (directory: string) => Promise<{ success: boolean; error?: string }>
+  stop: (directory: string) => Promise<void>
+  stopAll: () => Promise<void>
+  getWatched: () => Promise<string[]>
+  getChanges: () => Promise<FileChangeEvent[]>
+  clear: () => Promise<void>
+  browseDirectory: () => Promise<string | null>
+  onChange: (callback: (data: FileChangeEvent) => void) => void
+}
+
+// ──────────────────────────────────────────────
+// Logs Types
+// ──────────────────────────────────────────────
+
+interface LogEntry {
+  timestamp: number
+  level: 'info' | 'warn' | 'error' | 'success'
+  category: string
+  message: string
+  details?: string
+}
+
+interface LogsAPI {
+  get: (limit?: number, category?: string) => Promise<LogEntry[]>
+  getFiles: () => Promise<{ name: string; size: number; date: string }[]>
+  getByDate: (date: string) => Promise<LogEntry[]>
+  clear: () => Promise<void>
+  export: (date?: string) => Promise<string>
+}
+
+// ──────────────────────────────────────────────
+// Health Fix Types
+// ──────────────────────────────────────────────
+
+interface HealthFixResult {
+  junkCleaned: number
+  junkErrors: number
+  tweaksApplied: number
+  tweakErrors: number
+  ramFreedMB: number
+}
+
+interface UpdaterAPI {
+  check: () => Promise<void>
+  download: () => Promise<void>
+  install: () => void
+  onStatus: (callback: (data: any) => void) => void
+}
+
+interface HealthFixAPI {
+  run: () => Promise<HealthFixResult>
+  onProgress: (callback: (data: { step: string; progress: number }) => void) => void
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
@@ -633,6 +765,12 @@ interface ElectronAPI {
   scheduler: SchedulerAPI
   privacy: PrivacyAPI
   report: ReportAPI
+  registry: RegistryAPI
+  disk: DiskMaintenanceAPI
+  fileMonitor: FileMonitorAPI
+  updater: UpdaterAPI
+  healthFix: HealthFixAPI
+  logs: LogsAPI
   auto: AutoAPI
 }
 

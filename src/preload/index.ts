@@ -82,14 +82,18 @@ const api = {
     scanLeftovers: (appName: string) => ipcRenderer.invoke('uninstaller:scanLeftovers', appName),
     cleanLeftovers: (items: { path: string; type: 'file' | 'registry' }[]) =>
       ipcRenderer.invoke('uninstaller:cleanLeftovers', items),
-    getHistory: () => ipcRenderer.invoke('uninstaller:getHistory')
+    getHistory: () => ipcRenderer.invoke('uninstaller:getHistory'),
+    scanExtensionSecurity: () => ipcRenderer.invoke('uninstaller:scanExtensionSecurity')
   },
   process: {
     getAll: () => ipcRenderer.invoke('process:getAll'),
     kill: (pid: number) => ipcRenderer.invoke('process:kill', pid),
     getCount: () => ipcRenderer.invoke('process:getCount'),
     getRAMDetails: () => ipcRenderer.invoke('process:getRAMDetails'),
-    optimizeRAM: () => ipcRenderer.invoke('process:optimizeRAM')
+    optimizeRAM: () => ipcRenderer.invoke('process:optimizeRAM'),
+    setAffinity: (pid: number, coreMask: number) => ipcRenderer.invoke('process:setAffinity', pid, coreMask),
+    setPriority: (pid: number, priority: string) => ipcRenderer.invoke('process:setPriority', pid, priority),
+    getCoreCount: () => ipcRenderer.invoke('process:getCoreCount')
   },
   settings: {
     get: () => ipcRenderer.invoke('settings:get'),
@@ -163,6 +167,101 @@ const api = {
   report: {
     generate: () => ipcRenderer.invoke('report:generate'),
     generateAndOpen: () => ipcRenderer.invoke('report:generateAndOpen')
+  },
+  registry: {
+    scan: () => ipcRenderer.invoke('registry:scan'),
+    fix: (issues: { path: string; type: string }[]) => ipcRenderer.invoke('registry:fix', issues)
+  },
+  disk: {
+    getDrives: () => ipcRenderer.invoke('disk:getDrives'),
+    optimize: (driveLetter: string) => ipcRenderer.invoke('disk:optimize', driveLetter),
+    analyze: (driveLetter: string) => ipcRenderer.invoke('disk:analyze', driveLetter)
+  },
+  fileMonitor: {
+    start: (directory: string) => ipcRenderer.invoke('fileMonitor:start', directory),
+    stop: (directory: string) => ipcRenderer.invoke('fileMonitor:stop', directory),
+    stopAll: () => ipcRenderer.invoke('fileMonitor:stopAll'),
+    getWatched: () => ipcRenderer.invoke('fileMonitor:getWatched'),
+    getChanges: () => ipcRenderer.invoke('fileMonitor:getChanges'),
+    clear: () => ipcRenderer.invoke('fileMonitor:clear'),
+    browseDirectory: () => ipcRenderer.invoke('fileMonitor:browseDirectory'),
+    onChange: (callback: (data: any) => void) => {
+      ipcRenderer.on('fileMonitor:change', (_event, data) => callback(data))
+    }
+  },
+  healthFix: {
+    run: () => ipcRenderer.invoke('healthFix:run'),
+    onProgress: (callback: (data: { step: string; progress: number }) => void) => {
+      ipcRenderer.on('healthFix:progress', (_event, data) => callback(data))
+    }
+  },
+  logs: {
+    get: (limit?: number, category?: string) => ipcRenderer.invoke('logs:get', limit, category),
+    getFiles: () => ipcRenderer.invoke('logs:getFiles'),
+    getByDate: (date: string) => ipcRenderer.invoke('logs:getByDate', date),
+    clear: () => ipcRenderer.invoke('logs:clear'),
+    export: (date?: string) => ipcRenderer.invoke('logs:export', date)
+  },
+  diskTree: {
+    scan: (rootPath: string) => ipcRenderer.invoke('diskTree:scan', rootPath),
+    getDrives: () => ipcRenderer.invoke('diskTree:getDrives')
+  },
+  speedTest: {
+    run: () => ipcRenderer.invoke('speedTest:run')
+  },
+  contextMenu: {
+    getEntries: () => ipcRenderer.invoke('contextMenu:getEntries'),
+    remove: (keyPath: string) => ipcRenderer.invoke('contextMenu:remove', keyPath)
+  },
+  restore: {
+    getPoints: () => ipcRenderer.invoke('restore:getPoints'),
+    create: (description: string) => ipcRenderer.invoke('restore:create', description),
+    remove: (seqNumber: number) => ipcRenderer.invoke('restore:remove', seqNumber)
+  },
+  drivers: {
+    scan: () => ipcRenderer.invoke('drivers:scan')
+  },
+  hosts: {
+    getEntries: () => ipcRenderer.invoke('hosts:getEntries'),
+    getRaw: () => ipcRenderer.invoke('hosts:getRaw'),
+    add: (ip: string, hostname: string) => ipcRenderer.invoke('hosts:add', ip, hostname),
+    remove: (lineIndex: number) => ipcRenderer.invoke('hosts:remove', lineIndex),
+    toggle: (lineIndex: number) => ipcRenderer.invoke('hosts:toggle', lineIndex)
+  },
+  power: {
+    getPlans: () => ipcRenderer.invoke('power:getPlans'),
+    setActive: (guid: string) => ipcRenderer.invoke('power:setActive', guid),
+    create: (name: string, sourceGuid: string) => ipcRenderer.invoke('power:create', name, sourceGuid),
+    delete: (guid: string) => ipcRenderer.invoke('power:delete', guid)
+  },
+  rename: {
+    preview: (dir: string, pattern: string, replacement: string, useRegex: boolean) =>
+      ipcRenderer.invoke('rename:preview', dir, pattern, replacement, useRegex),
+    execute: (dir: string, renames: { original: string; renamed: string }[]) =>
+      ipcRenderer.invoke('rename:execute', dir, renames),
+    browse: () => ipcRenderer.invoke('rename:browse')
+  },
+  winUpdate: {
+    check: () => ipcRenderer.invoke('updates:check'),
+    lastDate: () => ipcRenderer.invoke('updates:lastDate'),
+    installed: () => ipcRenderer.invoke('updates:installed')
+  },
+  startupAnalyzer: {
+    analyze: () => ipcRenderer.invoke('startup:analyze')
+  },
+  settingsIO: {
+    exportJson: () => ipcRenderer.invoke('settings:export'),
+    importJson: (json: string) => ipcRenderer.invoke('settings:import', json),
+    exportDialog: () => ipcRenderer.invoke('settings:exportDialog'),
+    importDialog: () => ipcRenderer.invoke('settings:importDialog')
+  },
+  updater: {
+    check: () => ipcRenderer.invoke('updater:check'),
+    download: () => ipcRenderer.invoke('updater:download'),
+    install: () => ipcRenderer.invoke('updater:install'),
+    onStatus: (callback: (data: any) => void) => {
+      ipcRenderer.on('updater:status', (_event, data) => callback(data))
+    }
   },
   auto: {
     onCleanResult: (callback: (data: any) => void) => {

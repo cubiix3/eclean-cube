@@ -132,7 +132,7 @@ export async function findLargeFiles(
     const safeDrive = sanitizePath(driveLetter).charAt(0) || 'C'
     const safeMinSize = sanitizeNumber(minSizeMB)
     const result = await runPowerShell(
-      `Get-ChildItem -Path '${safeDrive}:\\Users' -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt ${safeMinSize * 1024 * 1024} } | Sort-Object Length -Descending | Select-Object -First 50 FullName, Name, Length, LastWriteTime | ConvertTo-Json -Depth 3`
+      `Get-ChildItem -Path '${safeDrive}:\\' -Recurse -File -Force -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt ${safeMinSize * 1024 * 1024} } | Sort-Object Length -Descending | Select-Object -First 50 FullName, Name, Length, LastWriteTime | ConvertTo-Json -Depth 3`
     )
     if (!result) return []
     const parsed = JSON.parse(result)

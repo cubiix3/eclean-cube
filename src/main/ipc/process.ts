@@ -5,7 +5,10 @@ import {
   killProcess,
   getProcessCount,
   getRAMDetails,
-  optimizeRAM
+  optimizeRAM,
+  setProcessAffinity,
+  setProcessPriority,
+  getCoreCount
 } from '../services/processService'
 
 export function registerProcessIPC(): void {
@@ -32,5 +35,17 @@ export function registerProcessIPC(): void {
 
   ipcMain.handle('process:optimizeRAM', async () => {
     return await optimizeRAM()
+  })
+
+  ipcMain.handle('process:setAffinity', async (_event, pid: number, coreMask: number) => {
+    return await setProcessAffinity(pid, coreMask)
+  })
+
+  ipcMain.handle('process:setPriority', async (_event, pid: number, priority: string) => {
+    return await setProcessPriority(pid, priority)
+  })
+
+  ipcMain.handle('process:getCoreCount', async () => {
+    return await getCoreCount()
   })
 }

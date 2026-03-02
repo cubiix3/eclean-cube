@@ -17,9 +17,17 @@ import { registerAlertsIPC } from './ipc/alerts'
 import { registerSchedulerIPC } from './ipc/scheduler'
 import { registerPrivacyIPC } from './ipc/privacy'
 import { registerReportIPC } from './ipc/report'
+import { registerRegistryCleanerIPC } from './ipc/registryCleaner'
+import { registerDiskMaintenanceIPC } from './ipc/diskMaintenance'
+import { registerFileMonitorIPC } from './ipc/fileMonitor'
+import { registerLogsIPC } from './ipc/logs'
+import { registerHealthFixIPC } from './ipc/healthFix'
+import { registerUpdaterIPC } from './ipc/updater'
+import { registerToolsIPC } from './ipc/tools'
 import { getSettings } from './services/settingsService'
 import { closePowerShell } from './services/powershell'
 import { stopTempMonitoring } from './services/alertService'
+import { stopAllWatchers } from './services/fileMonitorService'
 import { startSchedulerLoop, stopSchedulerLoop, runAutoCleanup, runAutoOptimize } from './services/schedulerService'
 
 let mainWindow: BrowserWindow | null = null
@@ -290,6 +298,13 @@ app.whenReady().then(() => {
   registerSchedulerIPC()
   registerPrivacyIPC()
   registerReportIPC()
+  registerRegistryCleanerIPC()
+  registerDiskMaintenanceIPC()
+  registerFileMonitorIPC()
+  registerLogsIPC()
+  registerHealthFixIPC()
+  registerUpdaterIPC()
+  registerToolsIPC()
   createWindow()
   createTray()
   startSchedulerLoop()
@@ -321,6 +336,7 @@ app.on('before-quit', () => {
   closeMiniWidget()
   stopTempMonitoring()
   stopSchedulerLoop()
+  stopAllWatchers()
   closePowerShell()
 })
 

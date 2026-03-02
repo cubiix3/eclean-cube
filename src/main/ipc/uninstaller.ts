@@ -7,7 +7,8 @@ import {
   getBrowserExtensions,
   scanLeftovers,
   cleanLeftovers,
-  getUninstallHistory
+  getUninstallHistory,
+  scanExtensionSecurity
 } from '../services/uninstallerService'
 
 export function registerUninstallerIPC(): void {
@@ -61,5 +62,10 @@ export function registerUninstallerIPC(): void {
   // History
   ipcMain.handle('uninstaller:getHistory', async () => {
     return getUninstallHistory()
+  })
+
+  // Extension Security Scanner
+  ipcMain.handle('uninstaller:scanExtensionSecurity', async () => {
+    return scanExtensionSecurity()
   })
 }

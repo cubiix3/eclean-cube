@@ -103,6 +103,49 @@ export async function getRAMDetails(): Promise<RAMDetails> {
   }
 }
 
+export async function setProcessAffinity(
+  pid: number,
+  coreMask: number
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const safePid = sanitizeNumber(pid)
+    const safeMask = sanitizeNumber(coreMask)
+    if (safeMask <= 0) return { success: false, error: 'Invalid core mask' }
+    await runPowerShell(
+      `$p = Get-Process -Id ${safePid} -ErrorAction Stop; $p.ProcessorAffinity = ${safeMask}`
+    )
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to set affinity' }
+  }
+}
+
+export async function setProcessPriority(
+  pid: number,
+  priority: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const safePid = sanitizeNumber(pid)
+    const validPriorities = ['Idle', 'BelowNormal', 'Normal', 'AboveNormal', 'High', 'RealTime']
+    if (!validPriorities.includes(priority)) return { success: false, error: 'Invalid priority' }
+    await runPowerShell(
+      `$p = Get-Process -Id ${safePid} -ErrorAction Stop; $p.PriorityClass = '${priority}'`
+    )
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to set priority' }
+  }
+}
+
+export async function getCoreCount(): Promise<number> {
+  try {
+    const raw = await runPowerShell(`(Get-CimInstance Win32_Processor).NumberOfLogicalProcessors`)
+    return parseInt(raw, 10) || 1
+  } catch {
+    return 1
+  }
+}
+
 export async function optimizeRAM(): Promise<RAMOptimizeResult> {
   try {
     const raw = await runPowerShell(`

@@ -20,6 +20,20 @@ const UninstallerPage = lazy(() => import('./modules/uninstaller/UninstallerPage
 const ProcessPage = lazy(() => import('./modules/process/ProcessPage'))
 const BenchmarkPage = lazy(() => import('./modules/benchmark/BenchmarkPage'))
 const SettingsPage = lazy(() => import('./modules/settings/SettingsPage'))
+const RegistryCleanerPage = lazy(() => import('./modules/registry/RegistryCleanerPage'))
+const DiskMaintenancePage = lazy(() => import('./modules/disk/DiskMaintenancePage'))
+const FileMonitorPage = lazy(() => import('./modules/monitor/FileMonitorPage'))
+const LogViewerPage = lazy(() => import('./modules/logs/LogViewerPage'))
+const DiskTreePage = lazy(() => import('./modules/tools/DiskTreePage'))
+const SpeedTestPage = lazy(() => import('./modules/tools/SpeedTestPage'))
+const ContextMenuPage = lazy(() => import('./modules/tools/ContextMenuPage'))
+const RestorePointPage = lazy(() => import('./modules/tools/RestorePointPage'))
+const DriversPage = lazy(() => import('./modules/tools/DriversPage'))
+const HostsEditorPage = lazy(() => import('./modules/tools/HostsEditorPage'))
+const PowerPlanPage = lazy(() => import('./modules/tools/PowerPlanPage'))
+const BatchRenamePage = lazy(() => import('./modules/tools/BatchRenamePage'))
+const UpdatesPage = lazy(() => import('./modules/tools/UpdatesPage'))
+const StartupAnalyzerPage = lazy(() => import('./modules/tools/StartupAnalyzerPage'))
 const MiniWidget = lazy(() => import('./modules/widget/MiniWidget'))
 
 function PageLoader() {
@@ -40,6 +54,7 @@ function MainLayout() {
   useKeyboardShortcuts()
   const addToast = useToastStore((s) => s.addToast)
   const accentColor = useSettingsStore((s) => s.settings.appearance.accentColor)
+  const theme = useSettingsStore((s) => s.settings.appearance.theme)
   const fetchSettings = useSettingsStore((s) => s.fetchSettings)
 
   // Load settings on mount
@@ -47,11 +62,15 @@ function MainLayout() {
     fetchSettings()
   }, [])
 
-  // Apply accent color as CSS custom property
+  // Apply accent color and theme as CSS custom properties
   useEffect(() => {
     document.documentElement.style.setProperty('--accent-color', accentColor)
     document.documentElement.style.setProperty('--accent-rgb', hexToRgb(accentColor))
   }, [accentColor])
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme || 'dark')
+  }, [theme])
 
   useEffect(() => {
     window.api.auto.onCleanResult((data) => {
@@ -71,7 +90,7 @@ function MainLayout() {
   }, [])
 
   return (
-    <div className="flex h-screen w-screen bg-[#0a0a0f]">
+    <div className="flex h-screen w-screen" style={{ background: 'var(--bg-primary, #0a0a0f)' }}>
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <Titlebar />
@@ -90,6 +109,20 @@ function MainLayout() {
                   <Route path="/process" element={<PageTransition><ErrorBoundary><ProcessPage /></ErrorBoundary></PageTransition>} />
                   <Route path="/benchmark" element={<PageTransition><ErrorBoundary><BenchmarkPage /></ErrorBoundary></PageTransition>} />
                   <Route path="/settings" element={<PageTransition><ErrorBoundary><SettingsPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/registry" element={<PageTransition><ErrorBoundary><RegistryCleanerPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/disk" element={<PageTransition><ErrorBoundary><DiskMaintenancePage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/monitor" element={<PageTransition><ErrorBoundary><FileMonitorPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/logs" element={<PageTransition><ErrorBoundary><LogViewerPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/treemap" element={<PageTransition><ErrorBoundary><DiskTreePage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/speedtest" element={<PageTransition><ErrorBoundary><SpeedTestPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/contextmenu" element={<PageTransition><ErrorBoundary><ContextMenuPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/restore" element={<PageTransition><ErrorBoundary><RestorePointPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/drivers" element={<PageTransition><ErrorBoundary><DriversPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/hosts" element={<PageTransition><ErrorBoundary><HostsEditorPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/power" element={<PageTransition><ErrorBoundary><PowerPlanPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/rename" element={<PageTransition><ErrorBoundary><BatchRenamePage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/updates" element={<PageTransition><ErrorBoundary><UpdatesPage /></ErrorBoundary></PageTransition>} />
+                  <Route path="/startupanalyzer" element={<PageTransition><ErrorBoundary><StartupAnalyzerPage /></ErrorBoundary></PageTransition>} />
                 </Routes>
               </AnimatePresence>
             </Suspense>

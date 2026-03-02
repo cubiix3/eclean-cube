@@ -15,5 +15,21 @@ win:
     - target: portable
       arch:
         - x64
-  artifactName: ${productName}-${version}.${ext}
+    - target: nsis
+      arch:
+        - x64
+  artifactName: ${productName}-${version}-${arch}.${ext}
   signAndEditExecutable: false
+  requestedExecutionLevel: requireAdministrator
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: eclean
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false

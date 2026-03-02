@@ -12,6 +12,7 @@ export interface AppSettings {
   }
   appearance: {
     accentColor: string
+    theme: 'dark' | 'light'
     animations: boolean
     compactMode: boolean
   }
@@ -40,6 +41,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   },
   appearance: {
     accentColor: '#3b82f6',
+    theme: 'dark' as const,
     animations: true,
     compactMode: false
   },

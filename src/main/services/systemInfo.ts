@@ -89,8 +89,9 @@ export async function getTemperatures(): Promise<TemperatureData> {
     runPowerShell(
       '$temp = Get-CimInstance MSAcpi_ThermalZoneTemperature -Namespace root/wmi -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty CurrentTemperature; if ($temp) { ($temp - 2732) / 10 } else { -1 }'
     ).catch(() => '-1'),
+    // Try NVIDIA first, then AMD
     runPowerShell(
-      "$nvidiaSmi = 'C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe'; if (Test-Path $nvidiaSmi) { & $nvidiaSmi --query-gpu=temperature.gpu --format=csv,noheader,nounits } else { -1 }"
+      `$nvidiaSmi = 'C:\\Program Files\\NVIDIA Corporation\\NVSMI\\nvidia-smi.exe'; if (Test-Path $nvidiaSmi) { & $nvidiaSmi --query-gpu=temperature.gpu --format=csv,noheader,nounits } else { $amd = Get-CimInstance -Namespace root/OpenHardwareMonitor -ClassName Sensor -ErrorAction SilentlyContinue | Where-Object { $_.SensorType -eq 'Temperature' -and $_.Name -like '*GPU*' } | Select-Object -First 1 -ExpandProperty Value; if ($amd) { $amd } else { -1 } }`
     ).catch(() => '-1')
   ])
 

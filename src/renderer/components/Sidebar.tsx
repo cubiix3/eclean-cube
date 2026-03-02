@@ -8,6 +8,20 @@ import {
   Activity,
   Gauge,
   Settings,
+  Database,
+  HardDrive,
+  Eye,
+  FileText,
+  PieChart,
+  Wifi,
+  MousePointer2,
+  Shield,
+  CircuitBoard,
+  Globe,
+  Zap,
+  FileEdit,
+  Download,
+  Timer,
   type LucideIcon
 } from 'lucide-react'
 import { useNavigationStore, type ModuleId } from '@/stores/navigationStore'
@@ -29,7 +43,21 @@ const navItems: NavItem[] = [
   { id: 'booster', icon: Rocket, label: 'Booster', path: '/booster' },
   { id: 'uninstaller', icon: PackageX, label: 'Uninstaller', path: '/uninstaller' },
   { id: 'process', icon: Activity, label: 'Processes', path: '/process' },
-  { id: 'benchmark', icon: Gauge, label: 'Benchmark', path: '/benchmark' }
+  { id: 'benchmark', icon: Gauge, label: 'Benchmark', path: '/benchmark' },
+  { id: 'registry', icon: Database, label: 'Registry', path: '/registry' },
+  { id: 'disk', icon: HardDrive, label: 'Disk Tools', path: '/disk' },
+  { id: 'treemap', icon: PieChart, label: 'Disk Map', path: '/treemap' },
+  { id: 'speedtest', icon: Wifi, label: 'Speed Test', path: '/speedtest' },
+  { id: 'contextmenu', icon: MousePointer2, label: 'Context Menu', path: '/contextmenu' },
+  { id: 'restore', icon: Shield, label: 'Restore Points', path: '/restore' },
+  { id: 'drivers', icon: CircuitBoard, label: 'Drivers', path: '/drivers' },
+  { id: 'hosts', icon: Globe, label: 'Hosts Editor', path: '/hosts' },
+  { id: 'power', icon: Zap, label: 'Power Plans', path: '/power' },
+  { id: 'rename', icon: FileEdit, label: 'Batch Rename', path: '/rename' },
+  { id: 'updates', icon: Download, label: 'Updates', path: '/updates' },
+  { id: 'startupanalyzer', icon: Timer, label: 'Boot Analyzer', path: '/startupanalyzer' },
+  { id: 'monitor', icon: Eye, label: 'File Monitor', path: '/monitor' },
+  { id: 'logs', icon: FileText, label: 'Logs', path: '/logs' }
 ]
 
 const settingsItem: NavItem = {
@@ -94,7 +122,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col items-center gap-1">
+      <nav className="flex-1 flex flex-col items-center gap-1 overflow-y-auto overflow-x-hidden py-1">
         {navItems.map(renderNavButton)}
       </nav>
 
