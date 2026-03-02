@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain, Tray, Menu, nativeImage, session } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, Tray, Menu, nativeImage, session, screen } from 'electron'
 import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import { registerSystemIPC } from './ipc/system'
@@ -19,6 +19,7 @@ import { closePowerShell } from './services/powershell'
 import { stopTempMonitoring } from './services/alertService'
 
 let mainWindow: BrowserWindow | null = null
+let miniWidget: BrowserWindow | null = null
 let tray: Tray | null = null
 let isQuitting = false
 let currentHealthScore = 0
@@ -167,6 +168,56 @@ function createWindow(): void {
   }
 }
 
+function createMiniWidget(): void {
+  if (miniWidget && !miniWidget.isDestroyed()) {
+    miniWidget.show()
+    miniWidget.focus()
+    return
+  }
+
+  const display = screen.getPrimaryDisplay()
+  const { width, height } = display.workAreaSize
+
+  miniWidget = new BrowserWindow({
+    width: 200,
+    height: 120,
+    x: width - 220,
+    y: height - 140,
+    alwaysOnTop: true,
+    frame: false,
+    transparent: true,
+    skipTaskbar: true,
+    resizable: false,
+    show: false,
+    webPreferences: {
+      preload: join(__dirname, '../preload/index.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  miniWidget.on('ready-to-show', () => {
+    miniWidget?.show()
+  })
+
+  miniWidget.on('closed', () => {
+    miniWidget = null
+  })
+
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    miniWidget.loadURL(`${process.env['ELECTRON_RENDERER_URL']}#/widget`)
+  } else {
+    miniWidget.loadFile(join(__dirname, '../renderer/index.html'), { hash: '/widget' })
+  }
+}
+
+function closeMiniWidget(): void {
+  if (miniWidget && !miniWidget.isDestroyed()) {
+    miniWidget.close()
+    miniWidget = null
+  }
+}
+
 // Window control IPC handlers
 ipcMain.on('window:minimize', () => mainWindow?.minimize())
 ipcMain.on('window:maximize', () => {
@@ -185,6 +236,17 @@ ipcMain.on('tray:updateHealthScore', (_event, score: number) => {
   if (tray) {
     tray.setContextMenu(buildTrayMenu())
   }
+})
+
+// Widget IPC handlers
+ipcMain.handle('widget:open', () => {
+  createMiniWidget()
+})
+ipcMain.handle('widget:close', () => {
+  closeMiniWidget()
+})
+ipcMain.handle('widget:isOpen', () => {
+  return miniWidget !== null && !miniWidget.isDestroyed()
 })
 
 app.whenReady().then(() => {
@@ -227,6 +289,7 @@ app.whenReady().then(() => {
 
 app.on('before-quit', () => {
   isQuitting = true
+  closeMiniWidget()
   stopTempMonitoring()
   closePowerShell()
 })

@@ -18,6 +18,7 @@ const UninstallerPage = lazy(() => import('./modules/uninstaller/UninstallerPage
 const ProcessPage = lazy(() => import('./modules/process/ProcessPage'))
 const BenchmarkPage = lazy(() => import('./modules/benchmark/BenchmarkPage'))
 const SettingsPage = lazy(() => import('./modules/settings/SettingsPage'))
+const MiniWidget = lazy(() => import('./modules/widget/MiniWidget'))
 
 function PageLoader() {
   return (
@@ -27,7 +28,7 @@ function PageLoader() {
   )
 }
 
-function AppContent() {
+function MainLayout() {
   useKeyboardShortcuts()
 
   return (
@@ -61,10 +62,23 @@ function AppContent() {
   )
 }
 
+function WidgetLayout() {
+  return (
+    <div className="w-screen h-screen">
+      <Suspense fallback={null}>
+        <MiniWidget />
+      </Suspense>
+    </div>
+  )
+}
+
 export default function App() {
   return (
     <HashRouter>
-      <AppContent />
+      <Routes>
+        <Route path="/widget" element={<WidgetLayout />} />
+        <Route path="/*" element={<MainLayout />} />
+      </Routes>
     </HashRouter>
   )
 }

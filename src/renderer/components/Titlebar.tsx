@@ -1,15 +1,32 @@
 import { useState, useEffect } from 'react'
-import { Minus, Square, X, Copy, ShieldAlert } from 'lucide-react'
+import { Minus, Square, X, Copy, ShieldAlert, PanelTopDashed } from 'lucide-react'
+import { useToastStore } from '@/stores/toastStore'
 
 export default function Titlebar() {
   const [isMaximized, setIsMaximized] = useState(false)
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
+  const addToast = useToastStore((s) => s.addToast)
 
   useEffect(() => {
     window.api.window.isMaximized().then(setIsMaximized)
     window.api.window.onMaximizeChange(setIsMaximized)
     window.api.system.isAdmin().then(setIsAdmin).catch(() => setIsAdmin(false))
   }, [])
+
+  const handleOpenWidget = async () => {
+    try {
+      const isOpen = await window.api.widget.isOpen()
+      if (isOpen) {
+        await window.api.widget.close()
+        addToast({ type: 'info', title: 'Mini widget closed' })
+      } else {
+        await window.api.widget.open()
+        addToast({ type: 'success', title: 'Mini widget opened' })
+      }
+    } catch {
+      addToast({ type: 'error', title: 'Failed to toggle mini widget' })
+    }
+  }
 
   return (
     <div
@@ -38,6 +55,13 @@ export default function Titlebar() {
         className="flex h-full"
         style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
       >
+        <button
+          onClick={handleOpenWidget}
+          className="w-10 h-full flex items-center justify-center hover:bg-white/10 transition-colors relative group cursor-pointer"
+          title="Mini Widget"
+        >
+          <PanelTopDashed size={13} className="text-white/40 group-hover:text-blue-400 transition-colors" />
+        </button>
         <button
           onClick={() => window.api.window.minimize()}
           className="w-12 h-full flex items-center justify-center hover:bg-white/10 transition-colors"

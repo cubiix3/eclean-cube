@@ -124,6 +124,11 @@ const api = {
     full: () => ipcRenderer.invoke('benchmark:full'),
     history: () => ipcRenderer.invoke('benchmark:history')
   },
+  widget: {
+    open: () => ipcRenderer.invoke('widget:open'),
+    close: () => ipcRenderer.invoke('widget:close'),
+    isOpen: () => ipcRenderer.invoke('widget:isOpen')
+  },
   alerts: {
     startMonitoring: (cpuThreshold: number, gpuThreshold: number) =>
       ipcRenderer.invoke('alerts:startMonitoring', cpuThreshold, gpuThreshold),

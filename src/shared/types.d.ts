@@ -541,6 +541,16 @@ interface TrayAPI {
   onQuickClean: (callback: () => void) => void
 }
 
+// ──────────────────────────────────────────────
+// Widget Types
+// ──────────────────────────────────────────────
+
+interface WidgetAPI {
+  open: () => Promise<void>
+  close: () => Promise<void>
+  isOpen: () => Promise<boolean>
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
@@ -556,6 +566,7 @@ interface ElectronAPI {
   duplicate: DuplicateAPI
   network: NetworkAPI
   alerts: AlertsAPI
+  widget: WidgetAPI
   tray: TrayAPI
 }
 
