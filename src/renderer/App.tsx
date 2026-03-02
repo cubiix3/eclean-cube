@@ -2,6 +2,7 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import Titlebar from './components/Titlebar'
 import Sidebar from './components/Sidebar'
+import ParticleBackground from './components/ParticleBackground'
 import PageTransition from './components/PageTransition'
 import ToastContainer from './components/ToastContainer'
 import DashboardPage from './modules/dashboard/DashboardPage'
@@ -20,19 +21,22 @@ export default function App() {
         <Sidebar />
         <div className="flex-1 flex flex-col min-w-0">
           <Titlebar />
-          <main className="flex-1 overflow-auto p-6">
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={<PageTransition><DashboardPage /></PageTransition>} />
-                <Route path="/optimizer" element={<PageTransition><OptimizerPage /></PageTransition>} />
-                <Route path="/cleaner" element={<PageTransition><CleanerPage /></PageTransition>} />
-                <Route path="/hardware" element={<PageTransition><HardwarePage /></PageTransition>} />
-                <Route path="/booster" element={<PageTransition><BoosterPage /></PageTransition>} />
-                <Route path="/uninstaller" element={<PageTransition><UninstallerPage /></PageTransition>} />
-                <Route path="/process" element={<PageTransition><ProcessPage /></PageTransition>} />
-                <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
-              </Routes>
-            </AnimatePresence>
+          <main className="flex-1 overflow-auto p-6 relative">
+            <ParticleBackground />
+            <div className="relative z-10">
+              <AnimatePresence mode="wait">
+                <Routes>
+                  <Route path="/" element={<PageTransition><DashboardPage /></PageTransition>} />
+                  <Route path="/optimizer" element={<PageTransition><OptimizerPage /></PageTransition>} />
+                  <Route path="/cleaner" element={<PageTransition><CleanerPage /></PageTransition>} />
+                  <Route path="/hardware" element={<PageTransition><HardwarePage /></PageTransition>} />
+                  <Route path="/booster" element={<PageTransition><BoosterPage /></PageTransition>} />
+                  <Route path="/uninstaller" element={<PageTransition><UninstallerPage /></PageTransition>} />
+                  <Route path="/process" element={<PageTransition><ProcessPage /></PageTransition>} />
+                  <Route path="/settings" element={<PageTransition><SettingsPage /></PageTransition>} />
+                </Routes>
+              </AnimatePresence>
+            </div>
           </main>
         </div>
         <ToastContainer />
