@@ -109,6 +109,7 @@ export default function NetworkMonitor() {
 
     return () => {
       ;(window.api as any).network.stopMonitor()
+      ;(window.api as any).network.removeStatsListener()
     }
   }, [])
 

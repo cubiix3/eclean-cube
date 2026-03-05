@@ -32,9 +32,14 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
   fetchOverview: async () => {
     set({ isLoading: true })
-    const overview = await window.api.system.getOverview()
-    set({ overview, isLoading: false })
-    get().calculateHealthScore()
+    try {
+      const overview = await window.api.system.getOverview()
+      set({ overview, isLoading: false })
+      get().calculateHealthScore()
+    } catch (err) {
+      console.error('Failed to fetch overview:', err)
+      set({ isLoading: false })
+    }
   },
 
   addSensorData: (data) => {

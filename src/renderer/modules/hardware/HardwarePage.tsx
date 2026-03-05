@@ -60,6 +60,7 @@ export default function HardwarePage() {
     }
     return () => {
       window.api.hardware.stopSensors()
+      window.api.hardware.removeSensorListener()
     }
   }, [activeTab])
 

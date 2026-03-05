@@ -77,27 +77,46 @@ function processNext(): void {
   ps.stdin?.write(wrappedCommand)
 }
 
-export async function runPowerShell(command: string): Promise<string> {
+export async function runPowerShell(command: string, timeoutMs = 30000): Promise<string> {
   return new Promise((resolve, reject) => {
-    // Set timeout to prevent hanging
+    let resolved = false
+    const wrappedResolve = (value: string) => {
+      if (resolved) return
+      resolved = true
+      clearTimeout(timeout)
+      resolve(value)
+    }
+    const wrappedReject = (err: Error) => {
+      if (resolved) return
+      resolved = true
+      clearTimeout(timeout)
+      reject(err)
+    }
+
     const timeout = setTimeout(() => {
-      reject(new Error(`PowerShell command timed out: ${command.substring(0, 100)}`))
-      // Remove from queue if still there
-      const idx = commandQueue.findIndex(c => c.resolve === resolve)
-      if (idx !== -1) commandQueue.splice(idx, 1)
-      if (commandQueue.length === 0) isProcessing = false
-    }, 30000)
+      if (resolved) return
+      resolved = true
+      // Remove from queue if waiting (not yet processing)
+      const idx = commandQueue.findIndex(c => c.resolve === wrappedResolve)
+      if (idx > 0) {
+        commandQueue.splice(idx, 1)
+      } else if (idx === 0) {
+        // Currently executing — kill PS process to flush, it will auto-restart
+        commandQueue.shift()
+        isProcessing = false
+        if (psProcess && !psProcess.killed) {
+          psProcess.kill()
+          psProcess = null
+        }
+        processNext()
+      }
+      resolve('')
+    }, timeoutMs)
 
     commandQueue.push({
       command,
-      resolve: (value) => {
-        clearTimeout(timeout)
-        resolve(value)
-      },
-      reject: (err) => {
-        clearTimeout(timeout)
-        reject(err)
-      }
+      resolve: wrappedResolve,
+      reject: wrappedReject
     })
     processNext()
   })

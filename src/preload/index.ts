@@ -18,6 +18,9 @@ const api = {
     stopSensorStream: () => ipcRenderer.send('system:stopSensorStream'),
     onSensorData: (callback: (data: any) => void) => {
       ipcRenderer.on('system:sensorData', (_event, data) => callback(data))
+    },
+    removeSensorListener: () => {
+      ipcRenderer.removeAllListeners('system:sensorData')
     }
   },
   hardware: {
@@ -26,6 +29,9 @@ const api = {
     stopSensors: () => ipcRenderer.send('hardware:stopSensors'),
     onSensorData: (callback: (data: any) => void) => {
       ipcRenderer.on('hardware:sensorData', (_event, data) => callback(data))
+    },
+    removeSensorListener: () => {
+      ipcRenderer.removeAllListeners('hardware:sensorData')
     },
     getDiskHealth: () => ipcRenderer.invoke('hardware:getDiskHealth')
   },
@@ -114,6 +120,9 @@ const api = {
     stopMonitor: () => ipcRenderer.send('network:stopMonitor'),
     onStats: (callback: (data: any) => void) => {
       ipcRenderer.on('network:stats', (_event, data) => callback(data))
+    },
+    removeStatsListener: () => {
+      ipcRenderer.removeAllListeners('network:stats')
     }
   },
   gaming: {

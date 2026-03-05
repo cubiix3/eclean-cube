@@ -12,6 +12,7 @@ interface SystemAPI {
   startSensorStream: () => void
   stopSensorStream: () => void
   onSensorData: (callback: (data: SensorData) => void) => void
+  removeSensorListener: () => void
 }
 
 interface SystemOverview {
@@ -116,6 +117,7 @@ interface HardwareAPI {
   startSensors: () => void
   stopSensors: () => void
   onSensorData: (callback: (data: DetailedSensors) => void) => void
+  removeSensorListener: () => void
   getDiskHealth: () => Promise<DiskHealthInfo[]>
 }
 
@@ -432,6 +434,7 @@ interface NetworkAPI {
   startMonitor: () => void
   stopMonitor: () => void
   onStats: (callback: (data: NetworkAdapterStats[]) => void) => void
+  removeStatsListener: () => void
 }
 
 // ──────────────────────────────────────────────

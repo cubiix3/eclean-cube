@@ -38,6 +38,7 @@ export default function DashboardPage() {
     return () => {
       clearInterval(refreshInterval)
       window.api.system.stopSensorStream()
+      window.api.system.removeSensorListener()
     }
   }, [])
 

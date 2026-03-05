@@ -3,6 +3,11 @@ import { getRecommendations } from '../services/recommendationService'
 
 export function registerRecommendationsIPC(): void {
   ipcMain.handle('recommendations:get', async () => {
-    return await getRecommendations()
+    try {
+      return await getRecommendations()
+    } catch (err) {
+      console.error('Recommendations IPC error:', err)
+      return []
+    }
   })
 }

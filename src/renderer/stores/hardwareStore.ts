@@ -19,8 +19,13 @@ export const useHardwareStore = create<HardwareState>((set) => ({
 
   fetchHardwareInfo: async () => {
     set({ isLoading: true })
-    const info = await window.api.hardware.getInfo()
-    set({ hardwareInfo: info, isLoading: false })
+    try {
+      const info = await window.api.hardware.getInfo()
+      set({ hardwareInfo: info, isLoading: false })
+    } catch (err) {
+      console.error('Failed to fetch hardware info:', err)
+      set({ isLoading: false })
+    }
   },
 
   addSensorData: (data) => {
