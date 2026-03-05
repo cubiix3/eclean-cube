@@ -31,7 +31,9 @@ import {
   X,
   Timer,
   Sun,
-  Moon
+  Moon,
+  Download,
+  Upload
 } from 'lucide-react'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useToastStore } from '@/stores/toastStore'
@@ -335,7 +337,7 @@ export default function SettingsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Settings</h1>
+          <h1 className="text-2xl font-bold text-gradient">Settings</h1>
           <p className="text-sm text-white/40 mt-1">Configure your preferences</p>
         </div>
         <div className="space-y-4">
@@ -357,7 +359,7 @@ export default function SettingsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Settings</h1>
+        <h1 className="text-2xl font-bold text-gradient">Settings</h1>
         <p className="text-sm text-white/40 mt-1">Configure your preferences</p>
       </div>
 
@@ -587,6 +589,7 @@ export default function SettingsPage() {
                 }}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-colors cursor-pointer"
               >
+                <Download size={14} />
                 Export Settings
               </button>
               <button
@@ -601,6 +604,7 @@ export default function SettingsPage() {
                 }}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-colors cursor-pointer"
               >
+                <Upload size={14} />
                 Import Settings
               </button>
               <button
@@ -680,7 +684,8 @@ export default function SettingsPage() {
                     window.api.alerts.setThresholds(val, settings.monitoring.gpuThreshold)
                   }
                 }}
-                className="w-24 accent-blue-500"
+                className="w-24"
+                style={{ accentColor: 'var(--accent-color)' }}
               />
               <span className="text-sm text-white/60 w-10 text-right">
                 {settings.monitoring.cpuThreshold}°C
@@ -707,7 +712,8 @@ export default function SettingsPage() {
                     window.api.alerts.setThresholds(settings.monitoring.cpuThreshold, val)
                   }
                 }}
-                className="w-24 accent-blue-500"
+                className="w-24"
+                style={{ accentColor: 'var(--accent-color)' }}
               />
               <span className="text-sm text-white/60 w-10 text-right">
                 {settings.monitoring.gpuThreshold}°C

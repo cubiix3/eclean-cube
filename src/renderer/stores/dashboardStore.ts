@@ -27,7 +27,7 @@ interface DashboardState {
 export const useDashboardStore = create<DashboardState>((set, get) => ({
   overview: null,
   sensorHistory: [],
-  healthScore: 0,
+  healthScore: -1,
   isLoading: true,
 
   fetchOverview: async () => {

@@ -24,6 +24,7 @@ import {
   Timer,
   type LucideIcon
 } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useNavigationStore, type ModuleId } from '@/stores/navigationStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useNavigate } from 'react-router-dom'
@@ -107,9 +108,11 @@ export default function Sidebar() {
         title={item.label}
       >
         {isActive && (
-          <div
+          <motion.div
+            layoutId="sidebar-indicator"
             className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-full"
             style={{ background: accentColor }}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
           />
         )}
         <Icon size={20} />
@@ -147,7 +150,7 @@ export default function Sidebar() {
         {sections.map((section, si) => (
           <div key={si} className="w-full flex flex-col items-center">
             {section.label && (
-              <div className="text-[9px] text-white/15 uppercase tracking-widest mb-1 mt-3 first:mt-0">
+              <div className="text-[10px] text-white/20 uppercase tracking-widest mb-1 mt-3 first:mt-0">
                 {section.label}
               </div>
             )}
