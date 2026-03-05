@@ -7,3 +7,7 @@ release/
 .env
 .env.*
 .claude/
+
+# Python bytecode
+*.pyc
+__pycache__/
