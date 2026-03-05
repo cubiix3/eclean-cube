@@ -1,4 +1,4 @@
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts'
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts'
 
 interface SensorDataPoint {
   timestamp: number
@@ -33,18 +33,28 @@ export default function LiveCharts({ data }: Props) {
   return (
     <div className="glass rounded-2xl p-6">
       <h3 className="text-sm text-white/40 uppercase tracking-wider mb-4">Live Performance</h3>
-      <div className="h-[200px]">
+      <div className="h-[240px]">
         {data.length < 2 ? (
           <div className="h-full flex items-center justify-center text-white/20 text-sm">Collecting data...</div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
+            <AreaChart data={data}>
+              <defs>
+                <linearGradient id="cpuGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="ramGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a855f7" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#a855f7" stopOpacity={0} />
+                </linearGradient>
+              </defs>
               <XAxis dataKey="timestamp" tickFormatter={formatTime} stroke="rgba(255,255,255,0.1)" tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.3)' }} interval="preserveStartEnd" />
               <YAxis domain={[0, 100]} stroke="rgba(255,255,255,0.1)" tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.3)' }} width={35} />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="cpu" name="CPU" stroke="#3b82f6" strokeWidth={2} dot={false} activeDot={{ r: 3, fill: '#3b82f6' }} />
-              <Line type="monotone" dataKey="ram" name="RAM" stroke="#a855f7" strokeWidth={2} dot={false} activeDot={{ r: 3, fill: '#a855f7' }} />
-            </LineChart>
+              <Area type="monotone" dataKey="cpu" name="CPU" stroke="#3b82f6" fill="url(#cpuGradient)" strokeWidth={2} dot={false} activeDot={{ r: 3, fill: '#3b82f6' }} />
+              <Area type="monotone" dataKey="ram" name="RAM" stroke="#a855f7" fill="url(#ramGradient)" strokeWidth={2} dot={false} activeDot={{ r: 3, fill: '#a855f7' }} />
+            </AreaChart>
           </ResponsiveContainer>
         )}
       </div>

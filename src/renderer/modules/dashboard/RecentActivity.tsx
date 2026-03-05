@@ -1,5 +1,15 @@
 import { useActivityStore } from '@/stores/activityStore'
-import { Clock } from 'lucide-react'
+import { Clock, Trash2, Sliders, Rocket, PackageX, Shield, Activity } from 'lucide-react'
+
+function getActivityIcon(action: string): { icon: any; color: string } {
+  const lower = action.toLowerCase()
+  if (lower.includes('clean') || lower.includes('delete') || lower.includes('shred')) return { icon: Trash2, color: '#ef4444' }
+  if (lower.includes('optim') || lower.includes('tweak')) return { icon: Sliders, color: '#3b82f6' }
+  if (lower.includes('boost') || lower.includes('startup') || lower.includes('dns')) return { icon: Rocket, color: '#f59e0b' }
+  if (lower.includes('uninstall') || lower.includes('leftover')) return { icon: PackageX, color: '#a855f7' }
+  if (lower.includes('secur') || lower.includes('privacy')) return { icon: Shield, color: '#22c55e' }
+  return { icon: Activity, color: '#6b7280' }
+}
 
 function timeAgo(timestamp: number): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000)
@@ -26,16 +36,21 @@ export default function RecentActivity() {
         </div>
       ) : (
         <div className="space-y-3 max-h-[200px] overflow-auto">
-          {entries.slice(0, 10).map((entry) => (
-            <div key={entry.id} className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-400/60 mt-2 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-white/80">{entry.action}</p>
-                <p className="text-xs text-white/30">{entry.detail}</p>
+          {entries.slice(0, 10).map((entry) => {
+            const { icon: Icon, color } = getActivityIcon(entry.action)
+            return (
+              <div key={entry.id} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${color}15` }}>
+                  <Icon size={12} style={{ color }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white/80">{entry.action}</p>
+                  <p className="text-xs text-white/30">{entry.detail}</p>
+                </div>
+                <span className="text-xs text-white/20 flex-shrink-0">{timeAgo(entry.timestamp)}</span>
               </div>
-              <span className="text-xs text-white/20 flex-shrink-0">{timeAgo(entry.timestamp)}</span>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

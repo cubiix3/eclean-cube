@@ -52,6 +52,14 @@ export default function HealthScore({ score, isLoading }: Props) {
           )}
         </div>
       </div>
+      <div className="flex gap-4 mt-4 justify-center">
+        {['Disk', 'RAM', 'CPU'].map((label) => (
+          <div key={label} className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+            <span className="text-[11px] text-white/30">{label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
