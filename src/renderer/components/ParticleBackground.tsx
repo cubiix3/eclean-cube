@@ -22,8 +22,9 @@ export default function ParticleBackground() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const PARTICLE_COUNT = 25
+    const PARTICLE_COUNT = 35
     const CONNECTION_DISTANCE = 150
+    const MOUSE_RADIUS = 120
     const PARALLAX_STRENGTH = 0.02
     const TARGET_FPS = 30
     const FRAME_INTERVAL = 1000 / TARGET_FPS
@@ -46,7 +47,7 @@ export default function ParticleBackground() {
           vx: (Math.random() - 0.5) * 0.4, // -0.2 to 0.2
           vy: (Math.random() - 0.5) * 0.4,
           radius: 1 + Math.random() * 2,
-          opacity: 0.03 + Math.random() * 0.05, // 0.03 to 0.08
+          opacity: 0.08 + Math.random() * 0.07, // 0.08 to 0.15
         })
       }
     }
@@ -65,6 +66,8 @@ export default function ParticleBackground() {
       lastFrameTime = timestamp - (elapsed % FRAME_INTERVAL)
 
       ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim() || '59, 130, 246'
 
       const particles = particlesRef.current
       const mouse = mouseRef.current
@@ -91,9 +94,24 @@ export default function ParticleBackground() {
         const drawX = p.x - parallaxX * (p.radius / 3)
         const drawY = p.y - parallaxY * (p.radius / 3)
 
+        // Mouse proximity glow effect
+        const mdx = mouse.x - drawX
+        const mdy = mouse.y - drawY
+        const distToMouse = Math.sqrt(mdx * mdx + mdy * mdy)
+
+        if (distToMouse < MOUSE_RADIUS) {
+          const influence = 1 - distToMouse / MOUSE_RADIUS
+          // Brighten particles near mouse
+          ctx.fillStyle = `rgba(${accentColor}, ${p.opacity + influence * 0.15})`
+          // Subtle attract towards mouse
+          p.x += mdx * 0.002 * influence
+          p.y += mdy * 0.002 * influence
+        } else {
+          ctx.fillStyle = `rgba(${accentColor}, ${p.opacity * 0.6})`
+        }
+
         ctx.beginPath()
         ctx.arc(drawX, drawY, p.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`
         ctx.fill()
 
         // Draw connections to nearby particles
@@ -104,14 +122,14 @@ export default function ParticleBackground() {
           const dist = Math.sqrt(dx * dx + dy * dy)
 
           if (dist < CONNECTION_DISTANCE) {
-            const lineOpacity = 0.02 * (1 - dist / CONNECTION_DISTANCE)
+            const lineOpacity = 0.04 * (1 - dist / CONNECTION_DISTANCE)
             const drawX2 = p2.x - parallaxX * (p2.radius / 3)
             const drawY2 = p2.y - parallaxY * (p2.radius / 3)
 
             ctx.beginPath()
             ctx.moveTo(drawX, drawY)
             ctx.lineTo(drawX2, drawY2)
-            ctx.strokeStyle = `rgba(255, 255, 255, ${lineOpacity})`
+            ctx.strokeStyle = `rgba(${accentColor}, ${lineOpacity})`
             ctx.lineWidth = 0.5
             ctx.stroke()
           }
