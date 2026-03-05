@@ -41,3 +41,66 @@
 .no-drag {
   -webkit-app-region: no-drag;
 }
+
+/* Design tokens */
+:root {
+  --surface: rgba(255, 255, 255, 0.05);
+  --surface-hover: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.12);
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #16161f;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.2); }
+  50% { box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.4); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Utility classes */
+.text-gradient {
+  background: linear-gradient(135deg, var(--accent-color) 0%, #06b6d4 50%, var(--accent-color) 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 6s ease infinite;
+}
+
+.glow {
+  box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.15), 0 0 4px rgba(var(--accent-rgb), 0.1);
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 20px rgba(var(--accent-rgb), 0.25), 0 0 8px rgba(var(--accent-rgb), 0.15);
+}
+
+.shimmer-bg {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.glass-glow {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.05);
+}
