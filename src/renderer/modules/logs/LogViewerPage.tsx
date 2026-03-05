@@ -272,7 +272,7 @@ export default function LogViewerPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Activity Logs</h1>
+          <h1 className="text-2xl font-bold text-gradient">Activity Logs</h1>
           <p className="text-sm text-white/40 mt-1">
             View and manage application activity history
             {filteredLogs.length > 0 && (

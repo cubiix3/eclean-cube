@@ -71,9 +71,10 @@ function StepIndicator() {
                 className={`
                   w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300
                   ${isCompleted ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : ''}
-                  ${isActive ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-lg shadow-blue-500/10' : ''}
+                  ${isActive ? 'border shadow-lg' : ''}
                   ${!isActive && !isCompleted ? 'bg-white/5 text-white/30 border border-white/10' : ''}
                 `}
+                style={isActive ? { background: `color-mix(in srgb, var(--accent-color) 20%, transparent)`, color: 'var(--accent-color)', borderColor: `color-mix(in srgb, var(--accent-color) 40%, transparent)`, boxShadow: `0 10px 15px -3px color-mix(in srgb, var(--accent-color) 10%, transparent)` } : undefined}
               >
                 {isCompleted ? <Check className="w-4 h-4" /> : step.num}
               </div>
@@ -162,15 +163,17 @@ function StepSelectCategories() {
               whileTap={{ scale: 0.98 }}
               className={`
                 glass rounded-xl p-4 text-left transition-all duration-200 cursor-pointer relative overflow-hidden group
-                ${isSelected ? 'border-blue-500/30 bg-blue-500/10' : 'hover:bg-white/[0.07]'}
+                ${isSelected ? '' : 'hover:bg-white/[0.07]'}
               `}
+              style={isSelected ? { borderColor: `color-mix(in srgb, var(--accent-color) 30%, transparent)`, background: `color-mix(in srgb, var(--accent-color) 10%, transparent)` } : undefined}
             >
               {/* Selection indicator */}
               <div
                 className={`
                   absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200
-                  ${isSelected ? 'bg-blue-500 scale-100' : 'bg-white/10 scale-90'}
+                  ${isSelected ? 'scale-100' : 'bg-white/10 scale-90'}
                 `}
+                style={isSelected ? { background: 'var(--accent-color)' } : undefined}
               >
                 {isSelected && <Check className="w-3 h-3 text-white" />}
               </div>
@@ -197,10 +200,11 @@ function StepSelectCategories() {
             flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer
             ${
               selectedCategories.length > 0
-                ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                ? 'text-white shadow-lg'
                 : 'bg-white/5 text-white/30 cursor-not-allowed'
             }
           `}
+          style={selectedCategories.length > 0 ? { background: 'var(--accent-color)', boxShadow: `0 10px 15px -3px color-mix(in srgb, var(--accent-color) 20%, transparent)` } : undefined}
         >
           Analyze System
           <ChevronRight className="w-4 h-4" />
@@ -266,8 +270,8 @@ function StepAnalyzing() {
               className={`
                 glass rounded-lg p-4 flex items-center gap-4 transition-all duration-300
                 ${isDone ? 'border-emerald-500/20' : ''}
-                ${isActive ? 'border-blue-500/20 bg-blue-500/5' : ''}
               `}
+              style={isActive ? { borderColor: `color-mix(in srgb, var(--accent-color) 20%, transparent)`, background: `color-mix(in srgb, var(--accent-color) 5%, transparent)` } : undefined}
             >
               <div
                 className={`w-10 h-10 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center flex-shrink-0`}
@@ -447,10 +451,11 @@ function StepReviewApply() {
                             w-5 h-5 rounded flex-shrink-0 flex items-center justify-center transition-all cursor-pointer border
                             ${
                               isSelected
-                                ? 'bg-blue-500 border-blue-500'
+                                ? ''
                                 : 'bg-white/5 border-white/20 hover:border-white/40'
                             }
                           `}
+                          style={isSelected ? { background: 'var(--accent-color)', borderColor: 'var(--accent-color)' } : undefined}
                         >
                           {isSelected && <Check className="w-3 h-3 text-white" />}
                         </button>
@@ -528,10 +533,11 @@ function StepReviewApply() {
             flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer
             ${
               selectedTweakIds.length > 0 && !isApplying
-                ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                ? 'text-white shadow-lg'
                 : 'bg-white/5 text-white/30 cursor-not-allowed'
             }
           `}
+          style={selectedTweakIds.length > 0 && !isApplying ? { background: 'var(--accent-color)', boxShadow: `0 10px 15px -3px color-mix(in srgb, var(--accent-color) 20%, transparent)` } : undefined}
         >
           {isApplying ? (
             <>

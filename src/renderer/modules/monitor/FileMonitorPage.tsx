@@ -98,7 +98,7 @@ export default function FileMonitorPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">File Monitor</h1>
+          <h1 className="text-2xl font-bold text-gradient">File Monitor</h1>
           <p className="text-sm text-white/40 mt-1">
             Watch directories for real-time file changes
             {events.length > 0 && (

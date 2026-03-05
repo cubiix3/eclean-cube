@@ -124,7 +124,7 @@ export default function RegistryCleanerPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Registry Cleaner</h1>
+          <h1 className="text-2xl font-bold text-gradient">Registry Cleaner</h1>
           <p className="text-sm text-white/40 mt-1">Find and fix broken registry entries</p>
         </div>
         <button

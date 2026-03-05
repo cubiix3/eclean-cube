@@ -156,7 +156,7 @@ export default function DiskMaintenancePage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Disk Maintenance</h1>
+          <h1 className="text-2xl font-bold text-gradient">Disk Maintenance</h1>
           <p className="text-sm text-white/40 mt-1">Optimize your drives</p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -173,7 +173,7 @@ export default function DiskMaintenancePage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Disk Maintenance</h1>
+          <h1 className="text-2xl font-bold text-gradient">Disk Maintenance</h1>
           <p className="text-sm text-white/40 mt-1">Analyze and optimize your drives</p>
         </div>
         <button

@@ -19,7 +19,7 @@ export default function UninstallerPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Uninstaller</h1>
+        <h1 className="text-2xl font-bold text-gradient">Uninstaller</h1>
         <p className="text-sm text-white/40 mt-1">Complete removal, zero leftovers</p>
       </div>
 
@@ -43,7 +43,8 @@ export default function UninstallerPage() {
             {activeTab === tab.key && (
               <motion.div
                 layoutId="uninstaller-tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-cyan-400"
+                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
+                style={{ background: `linear-gradient(to right, var(--accent-color), #06b6d4)` }}
                 transition={{ type: 'spring', stiffness: 500, damping: 35 }}
               />
             )}

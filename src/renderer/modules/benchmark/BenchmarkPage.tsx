@@ -260,7 +260,7 @@ export default function BenchmarkPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Benchmark</h1>
+          <h1 className="text-2xl font-bold text-gradient">Benchmark</h1>
           <p className="text-sm text-white/40 mt-1">Test your hardware performance</p>
         </div>
         <motion.button
