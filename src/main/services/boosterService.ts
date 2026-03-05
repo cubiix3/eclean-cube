@@ -8,7 +8,7 @@ import { sanitizeForPS, sanitizeNumber } from './sanitize'
 export interface StartupApp {
   name: string
   command: string
-  location: string // HKCU or HKLM
+  location: string // HKCU, HKLM, UserStartupFolder, or CommonStartupFolder
   user: string
   enabled: boolean
   publisher: string
@@ -141,6 +141,40 @@ export async function getStartupApps(): Promise<StartupApp[]> {
     }
   } catch {
     // Ignore errors
+  }
+
+  // Scan Windows Startup folders (user + common)
+  for (const folderType of ['Startup', 'CommonStartup'] as const) {
+    const locationLabel = folderType === 'Startup' ? 'UserStartupFolder' : 'CommonStartupFolder'
+    const userLabel = folderType === 'Startup' ? 'Current User' : 'All Users'
+    try {
+      const folderResult = await runPowerShell(
+        `$folder = [Environment]::GetFolderPath('${folderType}'); if (Test-Path $folder) { Get-ChildItem -Path $folder -File -ErrorAction SilentlyContinue | ForEach-Object { [PSCustomObject]@{ Name = $_.BaseName; Command = $_.FullName; Target = if ($_.Extension -eq '.lnk') { try { (New-Object -ComObject WScript.Shell).CreateShortcut($_.FullName).TargetPath } catch { $_.FullName } } else { $_.FullName } } } | ConvertTo-Json -Depth 3 } else { '[]' }`
+      )
+      if (folderResult && folderResult !== '[]') {
+        const parsed = JSON.parse(folderResult)
+        const entries = Array.isArray(parsed) ? parsed : [parsed]
+        for (const entry of entries) {
+          if (entry.Name) {
+            const command = entry.Target || entry.Command || ''
+            // Skip if already found via registry
+            if (!apps.some((a) => a.name === entry.Name)) {
+              apps.push({
+                name: entry.Name,
+                command,
+                location: locationLabel,
+                user: userLabel,
+                enabled: true,
+                publisher: extractPublisher(command),
+                impact: guessImpact(entry.Name, command)
+              })
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignore errors
+    }
   }
 
   return apps
@@ -364,51 +398,26 @@ export interface BootTimeEntry {
 
 export async function getBootTimes(): Promise<BootTimeEntry[]> {
   try {
-    // Get last 10 boot events (Event ID 12 = system boot)
-    const eventsResult = await runPowerShell(
-      `Get-WinEvent -FilterHashtable @{LogName='System'; ID=12} -MaxEvents 10 -ErrorAction SilentlyContinue | Select-Object TimeCreated | ConvertTo-Json`
-    )
-
-    // Get last boot time from OS
-    const lastBootResult = await runPowerShell(
-      `(Get-CimInstance Win32_OperatingSystem).LastBootUpTime | Get-Date -Format 'o'`
-    )
-
-    if (!eventsResult) return []
-
-    const parsed = JSON.parse(eventsResult)
-    const events = Array.isArray(parsed) ? parsed : [parsed]
-
-    const entries: BootTimeEntry[] = []
-
-    for (let i = 0; i < events.length; i++) {
-      const bootTime = new Date(events[i].TimeCreated)
-      // Estimate boot duration: difference between consecutive boot events
-      // For the most recent boot, use the OS LastBootUpTime to now calculation
-      let durationSeconds: number
-
-      if (i === 0 && lastBootResult) {
-        // For the latest boot, calculate from boot start to OS ready
-        // Use a heuristic: time from Event 12 to LastBootUpTime
-        const osBootTime = new Date(lastBootResult.trim())
-        durationSeconds = Math.abs(osBootTime.getTime() - bootTime.getTime()) / 1000
-        // If the duration seems unreasonable (> 600s or < 5s), use a reasonable estimate
-        if (durationSeconds > 600 || durationSeconds < 5) {
-          durationSeconds = Math.floor(Math.random() * 30) + 20 // fallback estimate
-        }
-      } else {
-        // For older boots, estimate based on typical boot times (30-90 seconds)
-        // We can't precisely know the duration from Event ID 12 alone
-        durationSeconds = Math.floor(Math.random() * 40) + 25
-      }
-
-      entries.push({
-        date: bootTime.toISOString(),
-        bootDurationSeconds: Math.round(durationSeconds)
-      })
-    }
-
-    return entries
+    const cmd = `
+      try {
+        $events = Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Diagnostics-Performance/Operational'; Id=100} -MaxEvents 10 -ErrorAction Stop |
+          ForEach-Object {
+            $xml = [xml]$_.ToXml()
+            $ns = New-Object Xml.XmlNamespaceManager($xml.NameTable)
+            $ns.AddNamespace('e','http://schemas.microsoft.com/win/2004/08/events/event')
+            $bootDuration = $xml.SelectSingleNode('//e:Data[@Name="BootTime"]', $ns)
+            if ($bootDuration) {
+              [PSCustomObject]@{
+                date = $_.TimeCreated.ToString('yyyy-MM-dd HH:mm')
+                bootDurationSeconds = [math]::Round([int64]$bootDuration.'#text' / 1000, 1)
+              }
+            }
+          } | Where-Object { $_ -ne $null -and $_.bootDurationSeconds -gt 0 -and $_.bootDurationSeconds -lt 600 }
+        if ($events) { $events } else { @() }
+      } catch { @() }
+    `
+    const result = await runPowerShellJSON<BootTimeEntry[]>(cmd)
+    return Array.isArray(result) ? result : result ? [result] : []
   } catch {
     return []
   }
