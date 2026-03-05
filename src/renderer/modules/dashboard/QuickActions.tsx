@@ -77,7 +77,7 @@ export default function QuickActions() {
           onClick={handleOneClickFix}
           disabled={isFixing}
           className="rounded-xl p-4 border border-white/5 hover:border-white/15 transition-all duration-200 text-left group cursor-pointer disabled:cursor-not-allowed"
-          style={{ background: `linear-gradient(135deg, var(--accent-color, #3b82f6)20, var(--accent-color, #3b82f6)10)` }}
+          style={{ background: `linear-gradient(135deg, rgba(var(--accent-rgb), 0.12), rgba(var(--accent-rgb), 0.06))` }}
           whileHover={isFixing ? undefined : { scale: 1.02 }}
           whileTap={isFixing ? undefined : { scale: 0.98 }}
           initial={{ opacity: 0, y: 10 }}

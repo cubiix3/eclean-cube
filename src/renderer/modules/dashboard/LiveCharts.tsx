@@ -35,7 +35,18 @@ export default function LiveCharts({ data }: Props) {
       <h3 className="text-sm text-white/40 uppercase tracking-wider mb-4">Live Performance</h3>
       <div className="h-[240px]">
         {data.length < 2 ? (
-          <div className="h-full flex items-center justify-center text-white/20 text-sm">Collecting data...</div>
+          <div className="h-full flex flex-col items-center justify-center gap-2">
+            <div className="flex gap-1">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className="w-1.5 h-1.5 rounded-full bg-white/20 animate-pulse"
+                  style={{ animationDelay: `${i * 0.3}s` }}
+                />
+              ))}
+            </div>
+            <span className="text-white/20 text-sm">Collecting data...</span>
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data}>

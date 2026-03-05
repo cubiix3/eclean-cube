@@ -65,7 +65,9 @@ export default function DashboardPage() {
           <RecentActivity />
         </motion.div>
       </div>
-      <SmartRecommendations />
+      <motion.div custom={4} initial="hidden" animate="visible" variants={cardVariants}>
+        <SmartRecommendations />
+      </motion.div>
     </div>
   )
 }

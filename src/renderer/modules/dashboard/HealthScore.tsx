@@ -40,7 +40,7 @@ export default function HealthScore({ score, isLoading }: Props) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          {isLoading ? (
+          {isLoading || score < 0 ? (
             <div className="text-white/30 text-sm">Scanning...</div>
           ) : (
             <>
@@ -55,7 +55,7 @@ export default function HealthScore({ score, isLoading }: Props) {
       <div className="flex gap-4 mt-4 justify-center">
         {['Disk', 'RAM', 'CPU'].map((label) => (
           <div key={label} className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: color }} />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
             <span className="text-[11px] text-white/30">{label}</span>
           </div>
         ))}

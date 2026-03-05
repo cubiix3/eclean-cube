@@ -68,9 +68,6 @@ export default function GamingMode() {
       className={`glass rounded-2xl p-6 relative overflow-hidden ${
         isActive ? 'border-green-500/30' : ''
       }`}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05 }}
       style={
         isActive
           ? { borderColor: 'rgba(34, 197, 94, 0.3)', boxShadow: '0 0 30px rgba(34, 197, 94, 0.08)' }

@@ -1,5 +1,6 @@
 import { useActivityStore } from '@/stores/activityStore'
 import { Clock, Trash2, Sliders, Rocket, PackageX, Shield, Activity } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 function getActivityIcon(action: string): { icon: any; color: string } {
   const lower = action.toLowerCase()
@@ -36,10 +37,16 @@ export default function RecentActivity() {
         </div>
       ) : (
         <div className="space-y-3 max-h-[200px] overflow-auto">
-          {entries.slice(0, 10).map((entry) => {
+          {entries.slice(0, 10).map((entry, i) => {
             const { icon: Icon, color } = getActivityIcon(entry.action)
             return (
-              <div key={entry.id} className="flex items-start gap-3">
+              <motion.div
+                key={entry.id}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05, duration: 0.3 }}
+                className="flex items-start gap-3"
+              >
                 <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: `${color}15` }}>
                   <Icon size={12} style={{ color }} />
                 </div>
@@ -48,7 +55,7 @@ export default function RecentActivity() {
                   <p className="text-xs text-white/30">{entry.detail}</p>
                 </div>
                 <span className="text-xs text-white/20 flex-shrink-0">{timeAgo(entry.timestamp)}</span>
-              </div>
+              </motion.div>
             )
           })}
         </div>

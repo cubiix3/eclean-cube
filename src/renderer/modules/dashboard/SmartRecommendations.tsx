@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { useNavigationStore } from '@/stores/navigationStore'
 import {
   HardDrive,
   Cpu,
@@ -31,13 +32,14 @@ const categoryIcons: Record<string, any> = {
 const impactColors: Record<string, string> = {
   high: '#ef4444',
   medium: '#f59e0b',
-  low: '#3b82f6',
+  low: '#22c55e',
 }
 
 export default function SmartRecommendations() {
   const [recs, setRecs] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
+  const { setActiveModule } = useNavigationStore()
 
   useEffect(() => {
     window.api.recommendations.get().then((data: Recommendation[]) => {
@@ -48,7 +50,13 @@ export default function SmartRecommendations() {
 
   const handleAction = (action: string) => {
     if (action.startsWith('navigate:')) {
-      navigate(action.replace('navigate:', ''))
+      const path = action.replace('navigate:', '')
+      const pathToModule: Record<string, string> = {
+        '/cleaner': 'cleaner', '/process': 'process', '/booster': 'booster',
+        '/settings': 'settings', '/updates': 'updates', '/optimizer': 'optimizer'
+      }
+      if (pathToModule[path]) setActiveModule(pathToModule[path] as any)
+      navigate(path)
     }
   }
 
@@ -59,7 +67,17 @@ export default function SmartRecommendations() {
           <Sparkles size={14} />
           Smart Recommendations
         </h3>
-        <div className="text-sm text-white/20">Analyzing system...</div>
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] animate-pulse">
+              <div className="w-8 h-8 rounded-lg bg-white/[0.06] flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 bg-white/[0.06] rounded w-3/4" />
+                <div className="h-2 bg-white/[0.04] rounded w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     )
   }
