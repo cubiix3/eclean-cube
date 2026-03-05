@@ -28,33 +28,47 @@ export interface LargeFile {
 const BROWSER_PATHS: Record<string, string> = {
   'Chrome Cache': path.join(app.getPath('home'), 'AppData/Local/Google/Chrome/User Data/Default/Cache'),
   'Chrome Code Cache': path.join(app.getPath('home'), 'AppData/Local/Google/Chrome/User Data/Default/Code Cache'),
+  'Chrome GPU Cache': path.join(app.getPath('home'), 'AppData/Local/Google/Chrome/User Data/Default/GPUCache'),
+  'Chrome Service Worker': path.join(app.getPath('home'), 'AppData/Local/Google/Chrome/User Data/Default/Service Worker'),
+  'Chrome Shader Cache': path.join(app.getPath('home'), 'AppData/Local/Google/Chrome/User Data/ShaderCache'),
   'Edge Cache': path.join(app.getPath('home'), 'AppData/Local/Microsoft/Edge/User Data/Default/Cache'),
   'Edge Code Cache': path.join(app.getPath('home'), 'AppData/Local/Microsoft/Edge/User Data/Default/Code Cache'),
-  'Firefox Cache': path.join(app.getPath('home'), 'AppData/Local/Mozilla/Firefox/Profiles'),
+  'Edge GPU Cache': path.join(app.getPath('home'), 'AppData/Local/Microsoft/Edge/User Data/Default/GPUCache'),
+  'Edge Service Worker': path.join(app.getPath('home'), 'AppData/Local/Microsoft/Edge/User Data/Default/Service Worker'),
+  'Firefox Cache': '', // Dynamic - handled in scan
   'Brave Cache': path.join(app.getPath('home'), 'AppData/Local/BraveSoftware/Brave-Browser/User Data/Default/Cache'),
-  'Opera Cache': path.join(app.getPath('home'), 'AppData/Local/Opera Software/Opera Stable/Cache')
+  'Opera Cache': path.join(app.getPath('home'), 'AppData/Roaming/Opera Software/Opera Stable/Cache'),
 }
 
 const SYSTEM_PATHS: Record<string, string> = {
   'Windows Temp': 'C:\\Windows\\Temp',
   'User Temp': path.join(app.getPath('home'), 'AppData/Local/Temp'),
   'Thumbnails': path.join(app.getPath('home'), 'AppData/Local/Microsoft/Windows/Explorer'),
-  'Windows Logs': 'C:\\Windows\\Logs'
+  'Windows Logs': 'C:\\Windows\\Logs',
+  'Windows Update Cache': 'C:\\Windows\\SoftwareDistribution\\Download',
+  'Prefetch': 'C:\\Windows\\Prefetch',
+  'Error Reports': path.join(app.getPath('home'), 'AppData/Local/Microsoft/Windows/WER/ReportArchive'),
+  'Delivery Optimization': 'C:\\Windows\\SoftwareDistribution\\DeliveryOptimization',
+  'Font Cache': path.join(app.getPath('home'), 'AppData/Local/Microsoft/FontCache'),
 }
 
 const APP_PATHS: Record<string, string> = {
   'Discord Cache': path.join(app.getPath('home'), 'AppData/Roaming/discord/Cache'),
   'Spotify Cache': path.join(app.getPath('home'), 'AppData/Local/Spotify/Storage'),
   'VS Code Cache': path.join(app.getPath('home'), 'AppData/Roaming/Code/Cache'),
-  'Teams Cache': path.join(app.getPath('home'), 'AppData/Roaming/Microsoft/Teams/Cache')
+  'Teams Cache': path.join(app.getPath('home'), 'AppData/Local/Microsoft/Teams/Cache'),
+  'Slack Cache': path.join(app.getPath('home'), 'AppData/Roaming/Slack/Cache'),
+  'Zoom Cache': path.join(app.getPath('home'), 'AppData/Roaming/Zoom/data'),
 }
 
 const GAME_PATHS: Record<string, string> = {
   'Steam Shader Cache': path.join(app.getPath('home'), 'AppData/Local/Steam/htmlcache'),
-  'Steam Download Cache': 'C:\\Program Files (x86)\\Steam\\depotcache',
+  'Steam Downloads': path.join(app.getPath('home'), 'AppData/Local/Steam/depotcache'),
   'Epic Games Cache': path.join(app.getPath('home'), 'AppData/Local/EpicGamesLauncher/Saved'),
   'NVIDIA Shader Cache': path.join(app.getPath('home'), 'AppData/Local/NVIDIA/DXCache'),
-  'AMD Shader Cache': path.join(app.getPath('home'), 'AppData/Local/AMD/DxCache')
+  'AMD Shader Cache': path.join(app.getPath('home'), 'AppData/Local/AMD/DXCache'),
+  'DirectX Shader Cache': path.join(app.getPath('home'), 'AppData/Local/D3DSCache'),
+  'Unity Cache': path.join(app.getPath('home'), 'AppData/Local/Unity/cache'),
 }
 
 export async function scanJunkCategory(categoryId: string): Promise<JunkCategory> {
@@ -86,13 +100,33 @@ export async function scanJunkCategory(categoryId: string): Promise<JunkCategory
 
   for (const [itemName, itemPath] of Object.entries(pathMap)) {
     try {
-      const escapedPath = itemPath.replace(/'/g, "''")
+      let scanPath = itemPath
+
+      // For Firefox, detect profile folder dynamically
+      if (!scanPath && itemName === 'Firefox Cache') {
+        try {
+          const ffProfilesDir = path.join(app.getPath('home'), 'AppData/Local/Mozilla/Firefox/Profiles')
+          const ffCmd = `if (Test-Path '${sanitizePath(ffProfilesDir).replace(/'/g, "''")}') { Get-ChildItem '${sanitizePath(ffProfilesDir).replace(/'/g, "''")}' -Directory | Select-Object -First 1 -ExpandProperty FullName } else { '' }`
+          const profilePath = (await runPowerShell(ffCmd)).trim()
+          if (profilePath) {
+            scanPath = path.join(profilePath, 'cache2')
+          } else {
+            continue
+          }
+        } catch {
+          continue
+        }
+      }
+
+      if (!scanPath) continue
+
+      const escapedPath = scanPath.replace(/'/g, "''")
       const sizeStr = await runPowerShell(
         `if (Test-Path '${escapedPath}') { (Get-ChildItem '${escapedPath}' -Recurse -Force -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum } else { 0 }`
       )
       const size = parseInt(sizeStr) || 0
       if (size > 0) {
-        items.push({ path: itemPath, name: itemName, size, selected: true })
+        items.push({ path: scanPath, name: itemName, size, selected: true })
       }
     } catch {
       // Path doesn't exist or no permission
@@ -109,7 +143,36 @@ export async function cleanJunkItems(
   let cleaned = 0
   const errors: string[] = []
 
+  // Check for running browsers before cleaning their caches
+  let runningBrowsers: string[] = []
+  try {
+    const runningCheck = await runPowerShell(
+      `Get-Process 'chrome','msedge','firefox','brave','opera' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name -Unique`
+    )
+    runningBrowsers = runningCheck.trim().split('\n').filter(Boolean).map(b => b.toLowerCase())
+  } catch {
+    // No browsers running or check failed
+  }
+
+  const browserKeywords: Record<string, string> = {
+    chrome: 'Chrome',
+    msedge: 'Edge',
+    firefox: 'Firefox',
+    brave: 'Brave',
+    opera: 'Opera'
+  }
+
   for (const p of paths) {
+    // Skip browser paths if browser is running
+    const runningBrowser = runningBrowsers.find(proc => {
+      const keyword = browserKeywords[proc]
+      return keyword && p.toLowerCase().includes(keyword.toLowerCase())
+    })
+    if (runningBrowser) {
+      const browserName = browserKeywords[runningBrowser] || runningBrowser
+      errors.push(`Skipped: ${browserName} is still running`)
+      continue
+    }
     try {
       const escapedPath = sanitizePath(p).replace(/'/g, "''")
       await runPowerShell(
