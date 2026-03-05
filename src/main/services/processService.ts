@@ -27,9 +27,11 @@ export interface RAMOptimizeResult {
 export async function getProcesses(): Promise<ProcessInfo[]> {
   try {
     const raw = await runPowerShell(
-      `Get-Process | Select-Object Id, ProcessName, @{N='CpuPercent';E={[math]::Round($_.CPU,1)}}, @{N='RamMB';E={[math]::Round($_.WorkingSet64/1MB,1)}}, Responding | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First 100 | ConvertTo-Json`
+      `Get-Process | Select-Object Id, ProcessName, @{N='CpuPercent';E={[math]::Round($_.CPU,1)}}, @{N='RamMB';E={[math]::Round($_.WorkingSet64/1MB,1)}}, Responding | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First 100 | ConvertTo-Json`,
+      60000
     )
 
+    if (!raw || !raw.trim() || raw.startsWith('ERROR:')) return []
     const parsed = JSON.parse(raw)
     const arr = Array.isArray(parsed) ? parsed : [parsed]
 

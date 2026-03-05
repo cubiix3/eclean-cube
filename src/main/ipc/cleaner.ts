@@ -17,13 +17,17 @@ export function registerCleanerIPC(): void {
   })
 
   ipcMain.handle('cleaner:scanAll', async () => {
-    const categories = await Promise.all([
-      scanJunkCategory('browsers'),
-      scanJunkCategory('system'),
-      scanJunkCategory('apps'),
-      scanJunkCategory('games')
-    ])
-    return categories
+    try {
+      const categories = await Promise.all([
+        scanJunkCategory('browsers').catch(() => ({ id: 'browsers', items: [], totalSize: 0 })),
+        scanJunkCategory('system').catch(() => ({ id: 'system', items: [], totalSize: 0 })),
+        scanJunkCategory('apps').catch(() => ({ id: 'apps', items: [], totalSize: 0 })),
+        scanJunkCategory('games').catch(() => ({ id: 'games', items: [], totalSize: 0 }))
+      ])
+      return categories
+    } catch {
+      return []
+    }
   })
 
   // Validated: paths must be string array

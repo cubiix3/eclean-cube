@@ -122,9 +122,9 @@ export async function runPowerShell(command: string, timeoutMs = 30000): Promise
   })
 }
 
-export async function runPowerShellJSON<T>(command: string): Promise<T> {
-  const result = await runPowerShell(`${command} | ConvertTo-Json -Depth 5 -Compress`)
-  if (!result || result === '') {
+export async function runPowerShellJSON<T>(command: string, timeoutMs?: number): Promise<T> {
+  const result = await runPowerShell(`${command} | ConvertTo-Json -Depth 5 -Compress`, timeoutMs)
+  if (!result || result === '' || result.startsWith('ERROR:')) {
     return [] as unknown as T
   }
   try {

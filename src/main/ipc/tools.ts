@@ -19,17 +19,24 @@ export function registerToolsIPC(): void {
     return scanDiskTree(rootPath)
   })
   ipcMain.handle('diskTree:getDrives', async () => {
-    const { runPowerShell } = require('../services/powershell')
-    const result = await runPowerShell(`Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | Select-Object -ExpandProperty DeviceID`)
-    return result.split('\n').map((d: string) => d.trim()).filter(Boolean)
+    try {
+      const { runPowerShell } = require('../services/powershell')
+      const result = await runPowerShell(`Get-CimInstance Win32_LogicalDisk -Filter "DriveType=3" | Select-Object -ExpandProperty DeviceID`)
+      return result.split('\n').map((d: string) => d.trim()).filter(Boolean)
+    } catch { return ['C:'] }
   })
 
   // ── Speed Test ──
   ipcMain.handle('speedTest:run', async () => {
-    log('info', 'speedTest', 'Starting speed test')
-    const result = await runSpeedTest()
-    log('success', 'speedTest', `Download: ${result.downloadMbps} Mbps, Upload: ${result.uploadMbps} Mbps`)
-    return result
+    try {
+      log('info', 'speedTest', 'Starting speed test')
+      const result = await runSpeedTest()
+      log('success', 'speedTest', `Download: ${result.downloadMbps} Mbps, Upload: ${result.uploadMbps} Mbps`)
+      return result
+    } catch (err) {
+      console.error('[IPC] speedTest:run failed:', err)
+      return { downloadMbps: 0, uploadMbps: 0, latencyMs: 0, server: 'failed' }
+    }
   })
 
   // ── Context Menu ──
@@ -118,14 +125,18 @@ export function registerToolsIPC(): void {
     return result.filePath
   })
   ipcMain.handle('settings:importDialog', async () => {
-    const result = await dialog.showOpenDialog({
-      filters: [{ name: 'JSON', extensions: ['json'] }],
-      properties: ['openFile']
-    })
-    if (result.canceled || !result.filePaths[0]) return null
-    const { readFileSync } = require('fs')
-    const json = readFileSync(result.filePaths[0], 'utf-8')
-    const parsed = JSON.parse(json)
-    return updateSettings(parsed)
+    try {
+      const result = await dialog.showOpenDialog({
+        filters: [{ name: 'JSON', extensions: ['json'] }],
+        properties: ['openFile']
+      })
+      if (result.canceled || !result.filePaths[0]) return null
+      const { readFileSync } = require('fs')
+      const json = readFileSync(result.filePaths[0], 'utf-8')
+      const parsed = JSON.parse(json)
+      return updateSettings(parsed)
+    } catch (e: any) {
+      return { error: e.message || 'Import failed' }
+    }
   })
 }

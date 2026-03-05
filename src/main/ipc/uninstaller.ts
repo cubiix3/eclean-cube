@@ -14,7 +14,10 @@ import {
 export function registerUninstallerIPC(): void {
   // Win32 Desktop Apps
   ipcMain.handle('uninstaller:getApps', async () => {
-    return await getInstalledApps()
+    try { return await getInstalledApps() } catch (err) {
+      console.error('[IPC] uninstaller:getApps failed:', err)
+      return []
+    }
   })
 
   ipcMain.handle('uninstaller:uninstall', async (_event, uninstallString: string, appName: string) => {
@@ -23,7 +26,10 @@ export function registerUninstallerIPC(): void {
 
   // UWP / Store Apps
   ipcMain.handle('uninstaller:getUwpApps', async () => {
-    return await getUwpApps()
+    try { return await getUwpApps() } catch (err) {
+      console.error('[IPC] uninstaller:getUwpApps failed:', err)
+      return []
+    }
   })
 
   ipcMain.handle('uninstaller:removeUwp', async (_event, packageFullName: string, appName: string) => {
@@ -32,11 +38,13 @@ export function registerUninstallerIPC(): void {
 
   // Browser Extensions
   ipcMain.handle('uninstaller:getExtensions', async () => {
-    return await getBrowserExtensions()
+    try { return await getBrowserExtensions() } catch (err) {
+      console.error('[IPC] uninstaller:getExtensions failed:', err)
+      return []
+    }
   })
 
   ipcMain.handle('uninstaller:openExtensionsPage', async (_event, browser: string) => {
-    // Use shell.openExternal for browser-specific URLs
     switch (browser.toLowerCase()) {
       case 'chrome':
         shell.openExternal('https://chrome.google.com/webstore/category/extensions')
@@ -52,7 +60,10 @@ export function registerUninstallerIPC(): void {
 
   // Leftover Detection
   ipcMain.handle('uninstaller:scanLeftovers', async (_event, appName: string) => {
-    return await scanLeftovers(appName)
+    try { return await scanLeftovers(appName) } catch (err) {
+      console.error('[IPC] uninstaller:scanLeftovers failed:', err)
+      return { files: [], registry: [], tasks: [], services: [] }
+    }
   })
 
   ipcMain.handle('uninstaller:cleanLeftovers', async (_event, items: { path: string; type: 'file' | 'registry' }[]) => {
@@ -61,11 +72,11 @@ export function registerUninstallerIPC(): void {
 
   // History
   ipcMain.handle('uninstaller:getHistory', async () => {
-    return getUninstallHistory()
+    try { return getUninstallHistory() } catch { return [] }
   })
 
   // Extension Security Scanner
   ipcMain.handle('uninstaller:scanExtensionSecurity', async () => {
-    return scanExtensionSecurity()
+    try { return scanExtensionSecurity() } catch { return [] }
   })
 }

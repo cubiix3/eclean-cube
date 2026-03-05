@@ -9,7 +9,7 @@ export interface PowerPlan {
 export async function getPowerPlans(): Promise<PowerPlan[]> {
   try {
     const result = await runPowerShell(
-      `powercfg /list`
+      `powercfg /list`, 60000
     )
     const lines = result.split('\n').filter(l => l.includes('GUID'))
     const plans: PowerPlan[] = []

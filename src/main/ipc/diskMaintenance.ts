@@ -4,17 +4,28 @@ import { log } from '../services/logService'
 
 export function registerDiskMaintenanceIPC(): void {
   ipcMain.handle('disk:getDrives', async () => {
-    return getDrivesForMaintenance()
+    try { return getDrivesForMaintenance() } catch (err) {
+      console.error('[IPC] disk:getDrives failed:', err)
+      return []
+    }
   })
 
   ipcMain.handle('disk:optimize', async (_event, driveLetter: string) => {
-    log('info', 'disk', `Optimizing drive ${driveLetter}:`)
-    const result = await optimizeDrive(driveLetter)
-    log(result.success ? 'success' : 'error', 'disk', result.message)
-    return result
+    try {
+      log('info', 'disk', `Optimizing drive ${driveLetter}:`)
+      const result = await optimizeDrive(driveLetter)
+      log(result.success ? 'success' : 'error', 'disk', result.message)
+      return result
+    } catch (err) {
+      console.error('[IPC] disk:optimize failed:', err)
+      return { success: false, message: 'Optimization failed' }
+    }
   })
 
   ipcMain.handle('disk:analyze', async (_event, driveLetter: string) => {
-    return analyzeDrive(driveLetter)
+    try { return analyzeDrive(driveLetter) } catch (err) {
+      console.error('[IPC] disk:analyze failed:', err)
+      return { fragmentation: 0, status: 'Error' }
+    }
   })
 }

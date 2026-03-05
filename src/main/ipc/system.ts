@@ -6,7 +6,12 @@ let sensorInterval: ReturnType<typeof setInterval> | null = null
 
 export function registerSystemIPC(): void {
   ipcMain.handle('system:getOverview', async () => {
-    return await getSystemOverview()
+    try {
+      return await getSystemOverview()
+    } catch (err) {
+      console.error('[IPC] system:getOverview failed:', err)
+      return null
+    }
   })
 
   ipcMain.on('system:startSensorStream', (event) => {

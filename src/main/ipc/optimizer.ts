@@ -13,19 +13,25 @@ import {
 
 export function registerOptimizerIPC(): void {
   ipcMain.handle('optimizer:getTweaks', async () => {
-    return getAllTweaks()
+    try { return getAllTweaks() } catch { return [] }
   })
 
   ipcMain.handle('optimizer:getCategories', async () => {
-    return getCategories()
+    try { return getCategories() } catch { return [] }
   })
 
   ipcMain.handle('optimizer:checkCategory', async (_event, categoryId: string) => {
-    return await checkCategoryStatus(categoryId)
+    try { return await checkCategoryStatus(categoryId) } catch (err) {
+      console.error('[IPC] optimizer:checkCategory failed:', err)
+      return {}
+    }
   })
 
   ipcMain.handle('optimizer:checkAll', async () => {
-    return await checkAllStatus()
+    try { return await checkAllStatus() } catch (err) {
+      console.error('[IPC] optimizer:checkAll failed:', err)
+      return {}
+    }
   })
 
   ipcMain.handle('optimizer:applyTweak', async (_event, tweakId: string) => {
@@ -45,6 +51,6 @@ export function registerOptimizerIPC(): void {
   })
 
   ipcMain.handle('optimizer:getBackup', async () => {
-    return getBackupData()
+    try { return getBackupData() } catch { return {} }
   })
 }

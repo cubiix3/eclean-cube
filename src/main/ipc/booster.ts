@@ -15,58 +15,73 @@ import {
 export function registerBoosterIPC(): void {
   // Startup Apps
   ipcMain.handle('booster:getStartupApps', async () => {
-    return await getStartupApps()
+    try { return await getStartupApps() } catch (err) {
+      console.error('[IPC] booster:getStartupApps failed:', err)
+      return []
+    }
   })
 
   ipcMain.handle(
     'booster:setStartupEnabled',
     async (_event, name: string, command: string, location: string, enabled: boolean) => {
-      await setStartupEnabled(name, command, location, enabled)
+      return await setStartupEnabled(name, command, location, enabled)
     }
   )
 
   // Windows Services
   ipcMain.handle('booster:getServices', async () => {
-    return await getServices()
+    try { return await getServices() } catch (err) {
+      console.error('[IPC] booster:getServices failed:', err)
+      return []
+    }
   })
 
   ipcMain.handle(
     'booster:setServiceStartType',
     async (_event, name: string, startType: 'Automatic' | 'Manual' | 'Disabled') => {
-      await setServiceStartType(name, startType)
+      return await setServiceStartType(name, startType)
     }
   )
 
   // DNS Optimizer
   ipcMain.handle('booster:getCurrentDNS', async () => {
-    return await getCurrentDNS()
+    try { return await getCurrentDNS() } catch (err) {
+      console.error('[IPC] booster:getCurrentDNS failed:', err)
+      return null
+    }
   })
 
   ipcMain.handle(
     'booster:setDNS',
     async (_event, interfaceIndex: number, primary: string, secondary: string) => {
-      await setDNS(interfaceIndex, primary, secondary)
+      return await setDNS(interfaceIndex, primary, secondary)
     }
   )
 
   ipcMain.handle('booster:pingDNS', async (_event, server: string) => {
-    return await pingDNS(server)
+    try { return await pingDNS(server) } catch { return { latency: -1 } }
   })
 
   // Task Scheduler
   ipcMain.handle('booster:getScheduledTasks', async () => {
-    return await getScheduledTasks()
+    try { return await getScheduledTasks() } catch (err) {
+      console.error('[IPC] booster:getScheduledTasks failed:', err)
+      return []
+    }
   })
 
   ipcMain.handle(
     'booster:setTaskEnabled',
     async (_event, taskName: string, taskPath: string, enabled: boolean) => {
-      await setTaskEnabled(taskName, taskPath, enabled)
+      return await setTaskEnabled(taskName, taskPath, enabled)
     }
   )
 
   // Boot Time Tracker
   ipcMain.handle('booster:getBootTimes', async () => {
-    return await getBootTimes()
+    try { return await getBootTimes() } catch (err) {
+      console.error('[IPC] booster:getBootTimes failed:', err)
+      return { current: null, history: [], avgMs: 0 }
+    }
   })
 }

@@ -5,7 +5,12 @@ let hwSensorInterval: ReturnType<typeof setInterval> | null = null
 
 export function registerHardwareIPC(): void {
   ipcMain.handle('hardware:getInfo', async () => {
-    return await getHardwareInfo()
+    try {
+      return await getHardwareInfo()
+    } catch (err) {
+      console.error('[IPC] hardware:getInfo failed:', err)
+      return null
+    }
   })
 
   ipcMain.on('hardware:startSensors', (event) => {
@@ -31,6 +36,11 @@ export function registerHardwareIPC(): void {
   })
 
   ipcMain.handle('hardware:getDiskHealth', async () => {
-    return await getDiskHealth()
+    try {
+      return await getDiskHealth()
+    } catch (err) {
+      console.error('[IPC] hardware:getDiskHealth failed:', err)
+      return []
+    }
   })
 }

@@ -103,7 +103,11 @@ export const useBenchmarkStore = create<BenchmarkState>((set, get) => ({
   },
 
   fetchHistory: async () => {
-    const history = await window.api.benchmark.history()
-    set({ history })
+    try {
+      const history = await window.api.benchmark.history()
+      set({ history })
+    } catch {
+      set({ history: [] })
+    }
   }
 }))
