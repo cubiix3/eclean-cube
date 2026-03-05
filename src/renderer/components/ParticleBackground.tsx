@@ -31,6 +31,12 @@ export default function ParticleBackground() {
 
     let lastFrameTime = 0
 
+    let accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim() || '59, 130, 246'
+
+    const accentInterval = setInterval(() => {
+      accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim() || '59, 130, 246'
+    }, 5000)
+
     function resize() {
       if (!canvas) return
       canvas.width = canvas.offsetWidth
@@ -66,8 +72,6 @@ export default function ParticleBackground() {
       lastFrameTime = timestamp - (elapsed % FRAME_INTERVAL)
 
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim() || '59, 130, 246'
 
       const particles = particlesRef.current
       const mouse = mouseRef.current
@@ -163,6 +167,7 @@ export default function ParticleBackground() {
       window.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       cancelAnimationFrame(animFrameRef.current)
+      clearInterval(accentInterval)
     }
   }, [])
 

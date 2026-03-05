@@ -211,7 +211,7 @@ export default function DesktopApps() {
 
       {/* App Grid */}
       {filteredAndSorted.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-3 pb-20">
           <AnimatePresence>
             {filteredAndSorted.map((app) => {
               const isSelected = selectedApps.includes(app.DisplayName)
@@ -270,7 +270,7 @@ export default function DesktopApps() {
                         <div
                           className={`h-full rounded-full ${getSizeColor(app.EstimatedSize)}`}
                           style={{
-                            width: `${Math.min(100, ((app.EstimatedSize || 0) / 1024 / 1024) * 100)}%`
+                            width: `${Math.min(100, Math.max(2, Math.log10(Math.max(1, (app.EstimatedSize || 0) / 1024)) * 25))}%`
                           }}
                         />
                       </div>
