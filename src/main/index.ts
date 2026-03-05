@@ -24,6 +24,7 @@ import { registerLogsIPC } from './ipc/logs'
 import { registerHealthFixIPC } from './ipc/healthFix'
 import { registerUpdaterIPC } from './ipc/updater'
 import { registerToolsIPC } from './ipc/tools'
+import { registerRecommendationsIPC } from './ipc/recommendations'
 import { getSettings } from './services/settingsService'
 import { closePowerShell } from './services/powershell'
 import { stopTempMonitoring } from './services/alertService'
@@ -305,6 +306,7 @@ app.whenReady().then(() => {
   registerHealthFixIPC()
   registerUpdaterIPC()
   registerToolsIPC()
+  registerRecommendationsIPC()
   createWindow()
   createTray()
   startSchedulerLoop()

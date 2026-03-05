@@ -263,6 +263,9 @@ const api = {
       ipcRenderer.on('updater:status', (_event, data) => callback(data))
     }
   },
+  recommendations: {
+    get: (): Promise<any[]> => ipcRenderer.invoke('recommendations:get'),
+  },
   auto: {
     onCleanResult: (callback: (data: any) => void) => {
       ipcRenderer.on('auto:cleanResult', (_event, data) => callback(data))

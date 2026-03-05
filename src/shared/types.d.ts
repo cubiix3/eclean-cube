@@ -745,6 +745,24 @@ interface HealthFixAPI {
   onProgress: (callback: (data: { step: string; progress: number }) => void) => void
 }
 
+// ──────────────────────────────────────────────
+// Recommendation Types
+// ──────────────────────────────────────────────
+
+interface Recommendation {
+  id: string
+  title: string
+  description: string
+  impact: 'high' | 'medium' | 'low'
+  category: 'cleanup' | 'performance' | 'security' | 'startup'
+  action: string
+  actionLabel: string
+}
+
+interface RecommendationsAPI {
+  get: () => Promise<Recommendation[]>
+}
+
 interface ElectronAPI {
   window: WindowAPI
   system: SystemAPI
@@ -771,6 +789,7 @@ interface ElectronAPI {
   updater: UpdaterAPI
   healthFix: HealthFixAPI
   logs: LogsAPI
+  recommendations: RecommendationsAPI
   auto: AutoAPI
 }
 

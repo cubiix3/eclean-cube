@@ -6,6 +6,7 @@ import QuickActions from './QuickActions'
 import GamingMode from './GamingMode'
 import LiveCharts from './LiveCharts'
 import RecentActivity from './RecentActivity'
+import SmartRecommendations from './SmartRecommendations'
 
 export default function DashboardPage() {
   const { overview, sensorHistory, healthScore, isLoading, fetchOverview, addSensorData } =
@@ -55,6 +56,7 @@ export default function DashboardPage() {
           <RecentActivity />
         </div>
       </div>
+      <SmartRecommendations />
     </div>
   )
 }
