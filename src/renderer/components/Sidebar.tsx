@@ -67,6 +67,13 @@ const settingsItem: NavItem = {
   path: '/settings'
 }
 
+const sections = [
+  { label: null, items: navItems.slice(0, 1) },
+  { label: 'Tools', items: navItems.slice(1, 6) },
+  { label: 'Monitor', items: navItems.slice(6, 8) },
+  { label: 'System', items: navItems.slice(8) },
+]
+
 export default function Sidebar() {
   const { activeModule, setActiveModule } = useNavigationStore()
   const accentColor = useSettingsStore((s) => s.settings.appearance.accentColor)
@@ -92,7 +99,11 @@ export default function Sidebar() {
             : 'text-white/40 hover:text-white/70 hover:bg-white/5'
           }
         `}
-        style={isActive ? { background: `${accentColor}20`, color: accentColor } : undefined}
+        style={isActive ? {
+          background: `${accentColor}20`,
+          color: accentColor,
+          boxShadow: `0 0 12px ${accentColor}15`
+        } : undefined}
         title={item.label}
       >
         {isActive && (
@@ -104,7 +115,10 @@ export default function Sidebar() {
         <Icon size={20} />
 
         {/* Tooltip */}
-        <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#1e1e2e] text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 border border-white/10">
+        <div className="absolute left-full ml-3 px-2.5 py-1.5 bg-[#1e1e2e] text-white text-xs rounded-lg
+          opacity-0 group-hover:opacity-100 scale-95 group-hover:scale-100
+          pointer-events-none transition-all duration-200 whitespace-nowrap z-50
+          border border-white/10 shadow-lg shadow-black/20">
           {item.label}
         </div>
       </button>
@@ -115,15 +129,31 @@ export default function Sidebar() {
     <div className="w-[70px] h-full bg-[#16161f] flex flex-col items-center py-4 border-r border-white/5">
       {/* Logo */}
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center mb-8"
-        style={{ background: accentColor }}
+        className="w-10 h-10 rounded-xl flex items-center justify-center mb-6"
+        style={{
+          background: `linear-gradient(135deg, ${accentColor}, #06b6d4)`,
+          boxShadow: `0 0 12px ${accentColor}30`
+        }}
       >
-        <span className="text-white font-bold text-sm">e</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 flex flex-col items-center gap-1 overflow-y-auto overflow-x-hidden py-1">
-        {navItems.map(renderNavButton)}
+      <nav className="flex-1 flex flex-col items-center gap-0.5 overflow-y-auto overflow-x-hidden py-1">
+        {sections.map((section, si) => (
+          <div key={si} className="w-full flex flex-col items-center">
+            {section.label && (
+              <div className="text-[9px] text-white/15 uppercase tracking-widest mb-1 mt-3 first:mt-0">
+                {section.label}
+              </div>
+            )}
+            {section.items.map(renderNavButton)}
+          </div>
+        ))}
       </nav>
 
       {/* Settings (separated at bottom) */}
