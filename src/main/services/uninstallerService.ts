@@ -317,73 +317,135 @@ export async function openExtensionsPage(browser: string): Promise<void> {
 
 export async function scanLeftovers(appName: string): Promise<LeftoverItem[]> {
   const leftovers: LeftoverItem[] = []
-  const searchName = sanitizeForPS(appName.trim())
+  const escapedName = sanitizeForPS(appName.trim())
 
-  if (!searchName) return leftovers
+  if (!escapedName) return leftovers
 
-  // Already sanitized above
-  const escapedName = searchName
-
-  // File/folder search
   try {
-    const fileCmd = `Get-ChildItem -Path 'C:\\Program Files','C:\\Program Files (x86)',$env:APPDATA,$env:LOCALAPPDATA -Filter '*${escapedName}*' -Directory -ErrorAction SilentlyContinue -Depth 2 | Select-Object FullName, @{N='SizeBytes';E={(Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum}}`
-    const fileResult = await runPowerShellJSON<any>(fileCmd)
-    const files = Array.isArray(fileResult) ? fileResult : fileResult ? [fileResult] : []
-
-    for (const f of files) {
-      if (!f.FullName) continue
-      const fullNameLower = f.FullName.toLowerCase()
-      const appNameLower = searchName.toLowerCase()
-
-      // Determine confidence
-      let confidence: 'high' | 'medium' | 'low' = 'low'
-      const folderName = f.FullName.split('\\').pop()?.toLowerCase() || ''
-
-      if (folderName === appNameLower) {
-        confidence = 'high'
-      } else if (folderName.includes(appNameLower)) {
-        confidence = 'high'
-      } else if (fullNameLower.includes('program files') || fullNameLower.includes('appdata')) {
-        confidence = 'medium'
+    // 1. File system leftovers — expanded paths, depth 3
+    const fileCmd = `
+      $searchPaths = @(
+        'C:\\Program Files',
+        'C:\\Program Files (x86)',
+        $env:APPDATA,
+        $env:LOCALAPPDATA,
+        $env:ProgramData,
+        (Join-Path $env:LOCALAPPDATA 'Programs')
+      )
+      $found = @()
+      foreach ($sp in $searchPaths) {
+        if (Test-Path $sp) {
+          Get-ChildItem -Path $sp -Filter '*${escapedName}*' -Directory -ErrorAction SilentlyContinue -Depth 3 | ForEach-Object {
+            $size = (Get-ChildItem $_.FullName -Recurse -File -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum -ErrorAction SilentlyContinue).Sum
+            $found += [PSCustomObject]@{ FullName = $_.FullName; SizeBytes = if ($size) { $size } else { 0 } }
+          }
+        }
       }
+      if ($found.Count -gt 0) { $found } else { @() }
+    `
+    const files = await runPowerShellJSON<any[]>(fileCmd)
+    if (Array.isArray(files)) {
+      for (const f of files) {
+        if (!f.FullName) continue
+        const fullNameLower = f.FullName.toLowerCase()
+        const appNameLower = escapedName.toLowerCase()
+        const folderName = f.FullName.split('\\').pop()?.toLowerCase() || ''
 
-      leftovers.push({
-        path: f.FullName,
-        type: 'file',
-        confidence,
-        size: f.SizeBytes || 0
-      })
-    }
-  } catch {
-    // ignore
-  }
+        let confidence: 'high' | 'medium' | 'low' = 'low'
+        if (folderName === appNameLower) {
+          confidence = 'high'
+        } else if (folderName.includes(appNameLower)) {
+          confidence = 'high'
+        } else if (fullNameLower.includes('program files') || fullNameLower.includes('appdata')) {
+          confidence = 'medium'
+        }
 
-  // Registry search
-  try {
-    const regCmd = `Get-ChildItem -Path 'HKCU:\\Software','HKLM:\\Software' -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*${escapedName}*' } | Select-Object @{N='FullPath';E={$_.Name}}`
-    const regResult = await runPowerShellJSON<any>(regCmd)
-    const regs = Array.isArray(regResult) ? regResult : regResult ? [regResult] : []
-
-    for (const r of regs) {
-      if (!r.FullPath) continue
-      const keyName = r.FullPath.split('\\').pop()?.toLowerCase() || ''
-      const appNameLower = searchName.toLowerCase()
-
-      let confidence: 'high' | 'medium' | 'low' = 'low'
-      if (keyName === appNameLower) {
-        confidence = 'high'
-      } else if (keyName.includes(appNameLower)) {
-        confidence = 'medium'
+        leftovers.push({
+          type: 'file',
+          path: f.FullName,
+          confidence,
+          size: f.SizeBytes || 0
+        })
       }
-
-      leftovers.push({
-        path: r.FullPath,
-        type: 'registry',
-        confidence
-      })
     }
-  } catch {
-    // ignore
+
+    // 2. Registry leftovers — expanded scope
+    const regCmd = `
+      $regPaths = @(
+        'HKCU:\\Software',
+        'HKLM:\\Software',
+        'HKCU:\\Software\\Classes\\CLSID',
+        'HKLM:\\SOFTWARE\\Classes\\CLSID',
+        'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths'
+      )
+      $found = @()
+      foreach ($rp in $regPaths) {
+        if (Test-Path $rp) {
+          Get-ChildItem -Path $rp -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*${escapedName}*' } | ForEach-Object {
+            $found += [PSCustomObject]@{ FullPath = $_.Name }
+          }
+        }
+      }
+      if ($found.Count -gt 0) { $found } else { @() }
+    `
+    const regItems = await runPowerShellJSON<any[]>(regCmd)
+    if (Array.isArray(regItems)) {
+      for (const r of regItems) {
+        if (!r.FullPath) continue
+        const keyName = r.FullPath.split('\\').pop()?.toLowerCase() || ''
+        const appNameLower = escapedName.toLowerCase()
+
+        let confidence: 'high' | 'medium' | 'low' = 'low'
+        if (keyName === appNameLower) {
+          confidence = 'high'
+        } else if (keyName.includes(appNameLower)) {
+          confidence = 'medium'
+        }
+
+        leftovers.push({
+          type: 'registry',
+          path: r.FullPath,
+          confidence
+        })
+      }
+    }
+
+    // 3. Scheduled tasks leftovers
+    const taskCmd = `Get-ScheduledTask -ErrorAction SilentlyContinue | Where-Object { $_.TaskName -like '*${escapedName}*' -or $_.TaskPath -like '*${escapedName}*' } | Select-Object TaskName, TaskPath`
+    try {
+      const tasks = await runPowerShellJSON<any[]>(taskCmd)
+      if (Array.isArray(tasks)) {
+        for (const t of tasks) {
+          leftovers.push({
+            type: 'registry',
+            path: `Task: ${t.TaskPath}${t.TaskName}`,
+            confidence: 'medium'
+          })
+        }
+      }
+    } catch {
+      // ignore - scheduled task query may fail without admin
+    }
+
+    // 4. Services leftovers
+    const svcCmd = `Get-Service -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like '*${escapedName}*' -or $_.ServiceName -like '*${escapedName}*' } | Select-Object ServiceName, DisplayName`
+    try {
+      const services = await runPowerShellJSON<any[]>(svcCmd)
+      if (Array.isArray(services)) {
+        for (const s of services) {
+          leftovers.push({
+            type: 'registry',
+            path: `Service: ${s.DisplayName} (${s.ServiceName})`,
+            confidence: 'high'
+          })
+        }
+      }
+    } catch {
+      // ignore - service query may fail without admin
+    }
+
+  } catch (err: any) {
+    console.error('Leftover scan error:', err)
   }
 
   // Sort by confidence: high first, then medium, then low
