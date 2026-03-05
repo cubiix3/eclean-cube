@@ -1,7 +1,7 @@
 import { app } from 'electron'
 import { join } from 'path'
 import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { runPowerShell } from './powershell'
+import { runPowerShell, runPowerShellJSON } from './powershell'
 
 // ──────────────────────────────────────────────
 // Types
@@ -200,16 +200,6 @@ const TWEAKS: TweakDefinition[] = [
 
   // ── Power ──
   {
-    id: 'power-high-performance',
-    name: 'Set High Performance Power Plan',
-    description: 'Activates the built-in High Performance power plan.',
-    category: 'power',
-    riskLevel: 'safe',
-    checkCommand: `$active = powercfg /getactivescheme; if ($active -match '8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c') { 'true' } else { 'false' }`,
-    applyCommand: `powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c`,
-    revertCommand: `powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e`
-  },
-  {
     id: 'power-usb-suspend',
     name: 'Disable USB Selective Suspend',
     description: 'Prevents Windows from powering down USB devices to save energy.',
@@ -403,26 +393,54 @@ export async function checkTweakStatus(tweakId: string): Promise<boolean> {
 }
 
 export async function checkCategoryStatus(
-  categoryId: string
+  category: string
 ): Promise<Record<string, boolean>> {
-  const tweaks = TWEAKS.filter((t) => t.category === categoryId)
-  const status: Record<string, boolean> = {}
+  const categoryTweaks = TWEAKS.filter((t) => t.category === category)
+  if (categoryTweaks.length === 0) return {}
 
-  for (const tweak of tweaks) {
-    status[tweak.id] = await checkTweakStatus(tweak.id)
+  try {
+    const checks = categoryTweaks
+      .map(
+        (t) =>
+          `'${t.id}' = $(try { if (${t.checkCommand}) { $true } else { $false } } catch { $false })`
+      )
+      .join('; ')
+    const cmd = `$r = @{${checks}}; $r`
+    const result = await runPowerShellJSON<Record<string, boolean>>(cmd)
+    return result || {}
+  } catch {
+    const status: Record<string, boolean> = {}
+    for (const tweak of categoryTweaks) {
+      try {
+        status[tweak.id] = await checkTweakStatus(tweak.id)
+      } catch {
+        status[tweak.id] = false
+      }
+    }
+    return status
   }
-
-  return status
 }
 
 export async function checkAllStatus(): Promise<Record<string, boolean>> {
-  const status: Record<string, boolean> = {}
-
-  for (const tweak of TWEAKS) {
-    status[tweak.id] = await checkTweakStatus(tweak.id)
+  try {
+    const checks = TWEAKS.map(
+      (t) =>
+        `'${t.id}' = $(try { if (${t.checkCommand}) { $true } else { $false } } catch { $false })`
+    ).join('; ')
+    const cmd = `$r = @{${checks}}; $r`
+    const result = await runPowerShellJSON<Record<string, boolean>>(cmd)
+    return result || {}
+  } catch {
+    const status: Record<string, boolean> = {}
+    for (const tweak of TWEAKS) {
+      try {
+        status[tweak.id] = await checkTweakStatus(tweak.id)
+      } catch {
+        status[tweak.id] = false
+      }
+    }
+    return status
   }
-
-  return status
 }
 
 export async function applyTweak(tweakId: string): Promise<{ success: boolean; error?: string }> {
