@@ -120,7 +120,7 @@ export async function activateGamingMode(): Promise<GamingModeResult> {
     const ramResult = await runPowerShell(`
       $os = Get-CimInstance Win32_OperatingSystem;
       $beforeMB = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / 1KB, 0);
-      Get-Process | Where-Object { $_.ProcessName -ne 'eclean' } | ForEach-Object { try { $_.MinWorkingSet = $_.MinWorkingSet } catch {} };
+      Get-Process | Where-Object { $_.ProcessName -ne 'cleanonx' } | ForEach-Object { try { $_.MinWorkingSet = $_.MinWorkingSet } catch {} };
       Start-Sleep -Seconds 1;
       $os2 = Get-CimInstance Win32_OperatingSystem;
       $afterMB = [math]::Round(($os2.TotalVisibleMemorySize - $os2.FreePhysicalMemory) / 1KB, 0);
@@ -145,7 +145,7 @@ export async function activateGamingMode(): Promise<GamingModeResult> {
   // 6. Set foreground game process to High priority
   try {
     await runPowerShell(`
-      $fg = (Get-Process | Where-Object { $_.MainWindowHandle -ne 0 -and $_.ProcessName -ne 'eclean' -and $_.ProcessName -ne 'explorer' } | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First 1);
+      $fg = (Get-Process | Where-Object { $_.MainWindowHandle -ne 0 -and $_.ProcessName -ne 'cleanonx' -and $_.ProcessName -ne 'explorer' } | Sort-Object -Property WorkingSet64 -Descending | Select-Object -First 1);
       if ($fg) { $fg.PriorityClass = 'High' }
     `)
   } catch {

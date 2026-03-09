@@ -77,7 +77,7 @@ function createTrayIcon(): nativeImage {
 function buildTrayMenu(): Menu {
   return Menu.buildFromTemplate([
     {
-      label: 'Open eclean',
+      label: 'Open cleanonx',
       click: () => {
         mainWindow?.show()
         mainWindow?.focus()
@@ -109,7 +109,7 @@ function buildTrayMenu(): Menu {
 function createTray(): void {
   const icon = createTrayIcon()
   tray = new Tray(icon)
-  tray.setToolTip('eclean - System Optimizer')
+  tray.setToolTip('cleanonx - System Optimizer')
   tray.setContextMenu(buildTrayMenu())
 
   tray.on('click', () => {
@@ -136,7 +136,9 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      spellcheck: false,
+      v8CacheOptions: 'bypassHeatCheck'
     }
   })
 
@@ -160,8 +162,8 @@ function createWindow(): void {
         mainWindow?.hide()
         if (settings.general.showNotifications && tray) {
           tray.displayBalloon({
-            title: 'eclean',
-            content: 'eclean is still running in the system tray',
+            title: 'cleanonx',
+            content: 'cleanonx is still running in the system tray',
             iconType: 'info'
           })
         }

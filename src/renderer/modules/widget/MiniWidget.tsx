@@ -102,7 +102,7 @@ export default function MiniWidget() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <span className="text-[9px] font-semibold text-white/40 uppercase tracking-widest">
-            eclean
+            cleanonx
           </span>
           <button
             data-close

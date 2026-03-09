@@ -27,6 +27,6 @@ export const useActivityStore = create<ActivityState>()(
         })),
       clearAll: () => set({ entries: [] })
     }),
-    { name: 'eclean-activity' }
+    { name: 'cleanonx-activity' }
   )
 )

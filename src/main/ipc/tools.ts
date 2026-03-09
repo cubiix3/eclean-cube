@@ -115,7 +115,7 @@ export function registerToolsIPC(): void {
   })
   ipcMain.handle('settings:exportDialog', async () => {
     const result = await dialog.showSaveDialog({
-      defaultPath: 'eclean-settings.json',
+      defaultPath: 'cleanonx-settings.json',
       filters: [{ name: 'JSON', extensions: ['json'] }]
     })
     if (result.canceled || !result.filePath) return null

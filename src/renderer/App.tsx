@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar'
 import ParticleBackground from './components/ParticleBackground'
 import PageTransition from './components/PageTransition'
 import ToastContainer from './components/ToastContainer'
+import UpdateModal from './components/UpdateModal'
 import ErrorBoundary from './components/ErrorBoundary'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { useToastStore } from './stores/toastStore'
@@ -130,6 +131,7 @@ function MainLayout() {
         </main>
       </div>
       <ToastContainer />
+      <UpdateModal />
     </div>
   )
 }

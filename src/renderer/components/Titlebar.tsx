@@ -99,14 +99,14 @@ export default function Titlebar() {
       style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
     >
       <div className="pl-4 flex items-center gap-2">
-        <span className="text-xs text-white/40 font-medium tracking-wider uppercase">eclean</span>
+        <span className="text-xs text-white/40 font-medium tracking-wider uppercase">cleanonx</span>
         {isAdmin === false && (
           <div className="relative group" style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}>
             <ShieldAlert size={12} className="text-amber-400/60" />
             <div className="absolute left-0 top-full mt-1 px-2 py-1 bg-[#1a1a2e] border border-white/10 rounded-lg text-[10px] text-white/50 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
               Some features require admin privileges.
               <br />
-              Right-click eclean.exe and Run as administrator.
+              Right-click cleanonx.exe and Run as administrator.
             </div>
           </div>
         )}

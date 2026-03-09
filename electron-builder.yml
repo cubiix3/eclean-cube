@@ -1,6 +1,6 @@
-appId: com.eclean.app
-productName: eclean
-copyright: Copyright © 2026 eclean
+appId: com.cleanonx.app
+productName: cleanonx
+copyright: Copyright © 2026 cleanonx
 
 directories:
   buildResources: build
@@ -35,6 +35,6 @@ nsis:
   installerHeaderIcon: build/icon.ico
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: eclean
+  shortcutName: cleanonx
   runAfterFinish: true
   deleteAppDataOnUninstall: false

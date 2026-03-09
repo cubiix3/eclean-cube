@@ -401,7 +401,7 @@ function UpdateSection() {
               <StatusIcon className={`w-4.5 h-4.5 ${config.color} ${update.status === 'checking' || update.status === 'downloading' ? 'animate-spin' : ''}`} />
             </div>
             <div>
-              <p className="text-sm text-white">eclean v{__APP_VERSION__}</p>
+              <p className="text-sm text-white">cleanonx v{__APP_VERSION__}</p>
               <p className={`text-xs mt-0.5 ${config.color}`}>{config.text}</p>
             </div>
           </div>
@@ -507,7 +507,7 @@ export default function SettingsPage() {
             <SettingRow
               icon={Power}
               label="Launch at startup"
-              description="Start eclean when Windows boots"
+              description="Start cleanonx when Windows boots"
             >
               <Toggle
                 enabled={settings.general.launchAtStartup}

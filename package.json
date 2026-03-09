@@ -1,6 +1,6 @@
 {
-  "name": "eclean",
-  "version": "1.1.0",
+  "name": "cleanonx",
+  "version": "1.2.0",
   "description": "Speed up your PC, extend battery life, and quiet background processes.",
   "main": "./out/main/index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "dist": "electron-vite build && electron-builder --win --config electron-builder.yml"
   },
   "keywords": [],
-  "author": "eclean",
+  "author": "cleanonx",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

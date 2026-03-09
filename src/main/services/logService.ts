@@ -20,7 +20,7 @@ function getLogDir(): string {
 
 function getLogPath(): string {
   const date = new Date().toISOString().split('T')[0]
-  return join(getLogDir(), `eclean-${date}.json`)
+  return join(getLogDir(), `cleanonx-${date}.json`)
 }
 
 function loadTodayLog(): LogEntry[] {
@@ -62,7 +62,7 @@ export function getLogFiles(): { name: string; size: number; date: string }[] {
       .filter((f: string) => f.endsWith('.json'))
       .map((f: string) => {
         const stat = statSync(join(dir, f))
-        return { name: f, size: stat.size, date: f.replace('eclean-', '').replace('.json', '') }
+        return { name: f, size: stat.size, date: f.replace('cleanonx-', '').replace('.json', '') }
       })
       .sort((a: any, b: any) => b.date.localeCompare(a.date))
   } catch {
@@ -72,7 +72,7 @@ export function getLogFiles(): { name: string; size: number; date: string }[] {
 
 export function getLogsByDate(date: string): LogEntry[] {
   try {
-    const logPath = join(getLogDir(), `eclean-${date}.json`)
+    const logPath = join(getLogDir(), `cleanonx-${date}.json`)
     if (existsSync(logPath)) {
       return JSON.parse(readFileSync(logPath, 'utf-8'))
     }

@@ -116,7 +116,7 @@ export async function getStartupApps(): Promise<StartupApp[]> {
   // Also check disabled items stored in our own registry key
   try {
     const disabledResult = await runPowerShell(
-      `$items = Get-ItemProperty -Path 'HKCU:\\Software\\eClean\\DisabledStartup' -ErrorAction SilentlyContinue; if ($items) { $props = $items.PSObject.Properties | Where-Object { $_.Name -notlike 'PS*' }; $arr = @(); foreach ($p in $props) { $arr += [PSCustomObject]@{ Name = $p.Name; Command = $p.Value } }; $arr | ConvertTo-Json -Depth 3 } else { '[]' }`
+      `$items = Get-ItemProperty -Path 'HKCU:\\Software\\CleanOnX\\DisabledStartup' -ErrorAction SilentlyContinue; if ($items) { $props = $items.PSObject.Properties | Where-Object { $_.Name -notlike 'PS*' }; $arr = @(); foreach ($p in $props) { $arr += [PSCustomObject]@{ Name = $p.Name; Command = $p.Value } }; $arr | ConvertTo-Json -Depth 3 } else { '[]' }`
     )
     if (disabledResult && disabledResult !== '[]') {
       const parsed = JSON.parse(disabledResult)
@@ -199,12 +199,12 @@ export async function setStartupEnabled(
     )
     // Remove from our disabled storage
     await runPowerShell(
-      `Remove-ItemProperty -Path 'HKCU:\\Software\\eClean\\DisabledStartup' -Name '${escapedName}' -ErrorAction SilentlyContinue`
+      `Remove-ItemProperty -Path 'HKCU:\\Software\\CleanOnX\\DisabledStartup' -Name '${escapedName}' -ErrorAction SilentlyContinue`
     )
   } else {
     // Store the original value for re-enabling
     await runPowerShell(
-      `if (-not (Test-Path 'HKCU:\\Software\\eClean\\DisabledStartup')) { New-Item -Path 'HKCU:\\Software\\eClean\\DisabledStartup' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\Software\\eClean\\DisabledStartup' -Name '${escapedName}' -Value '${location}|${escapedCommand}'`
+      `if (-not (Test-Path 'HKCU:\\Software\\CleanOnX\\DisabledStartup')) { New-Item -Path 'HKCU:\\Software\\CleanOnX\\DisabledStartup' -Force | Out-Null }; Set-ItemProperty -Path 'HKCU:\\Software\\CleanOnX\\DisabledStartup' -Name '${escapedName}' -Value '${location}|${escapedCommand}'`
     )
     // Remove from the Run key
     await runPowerShell(

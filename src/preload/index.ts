@@ -278,8 +278,10 @@ const api = {
     download: () => ipcRenderer.invoke('updater:download'),
     install: () => ipcRenderer.invoke('updater:install'),
     onStatus: (callback: (data: any) => void) => {
-      ipcRenderer.removeAllListeners('updater:status')
       ipcRenderer.on('updater:status', (_event, data) => callback(data))
+    },
+    removeStatusListener: () => {
+      ipcRenderer.removeAllListeners('updater:status')
     }
   },
   recommendations: {
