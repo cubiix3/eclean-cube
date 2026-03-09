@@ -19,9 +19,17 @@ export function registerSystemIPC(): void {
 
     sensorInterval = setInterval(async () => {
       try {
+        const win = BrowserWindow.fromWebContents(event.sender)
+        if (!win || win.isDestroyed()) {
+          // Window is gone, stop the interval
+          if (sensorInterval) {
+            clearInterval(sensorInterval)
+            sensorInterval = null
+          }
+          return
+        }
         const [cpu, ram] = await Promise.all([getCpuUsage(), getRamUsage()])
-        const window = BrowserWindow.fromWebContents(event.sender)
-        if (window && !window.isDestroyed()) {
+        if (!event.sender.isDestroyed()) {
           event.sender.send('system:sensorData', {
             timestamp: Date.now(),
             cpu,

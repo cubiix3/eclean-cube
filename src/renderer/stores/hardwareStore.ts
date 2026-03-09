@@ -31,7 +31,7 @@ export const useHardwareStore = create<HardwareState>((set) => ({
   addSensorData: (data) => {
     set((state) => {
       const history = [...state.sensorHistory, data]
-      if (history.length > 30) history.shift()
+      if (history.length > 60) history.shift()
       return { sensorHistory: history }
     })
   },

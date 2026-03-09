@@ -64,12 +64,12 @@ export default function FileMonitorPage() {
     loadWatchedDirs()
     loadEvents()
 
-    const cleanup = window.api.fileMonitor.onChange((event: FileChangeEvent) => {
+    window.api.fileMonitor.onChange((event: FileChangeEvent) => {
       setEvents((prev) => [event, ...prev])
     })
 
     return () => {
-      if (typeof cleanup === 'function') cleanup()
+      window.api.fileMonitor.removeChangeListener()
     }
   }, [loadWatchedDirs, loadEvents])
 

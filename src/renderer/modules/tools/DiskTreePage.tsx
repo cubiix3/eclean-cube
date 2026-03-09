@@ -44,7 +44,7 @@ export default function DiskTreePage() {
     }
   }
 
-  const maxChildSize = result?.children
+  const maxChildSize = result?.children?.length
     ? Math.max(...result.children.map((c) => c.size), 1)
     : 1
 

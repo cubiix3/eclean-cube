@@ -239,14 +239,14 @@ export async function getDetailedSensors(): Promise<DetailedSensors> {
 
   // RAM
   const osData = Array.isArray(osResult) ? osResult[0] : osResult
-  const totalMemKB = osData.TotalVisibleMemorySize || 0
-  const freeMemKB = osData.FreePhysicalMemory || 0
+  const totalMemKB = osData?.TotalVisibleMemorySize || 0
+  const freeMemKB = osData?.FreePhysicalMemory || 0
   const ramUsedGB = Math.round(((totalMemKB - freeMemKB) / 1048576) * 100) / 100
   const ramAvailGB = Math.round((freeMemKB / 1048576) * 100) / 100
 
   // CPU frequency
   const cpuFreqData = Array.isArray(cpuFreqResult) ? cpuFreqResult[0] : cpuFreqResult
-  const cpuFreqMHz = cpuFreqData.CurrentClockSpeed || 0
+  const cpuFreqMHz = cpuFreqData?.CurrentClockSpeed || 0
 
   // Network
   const netItems = Array.isArray(netResult) ? netResult : netResult ? [netResult] : []

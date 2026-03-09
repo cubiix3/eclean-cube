@@ -48,6 +48,17 @@ export function getHostsRaw(): string {
 }
 
 export function addHostEntry(ip: string, hostname: string): { success: boolean; error?: string } {
+  // Validate IP format (IPv4 or IPv6)
+  const ipv4Regex = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/
+  const ipv6Regex = /^[0-9a-fA-F:]+$/
+  if (!ipv4Regex.test(ip) && !ipv6Regex.test(ip)) {
+    return { success: false, error: 'Invalid IP address format' }
+  }
+  // Validate hostname (no spaces, newlines, or special injection chars)
+  const hostnameRegex = /^[a-zA-Z0-9._-]+$/
+  if (!hostnameRegex.test(hostname) || hostname.length > 255) {
+    return { success: false, error: 'Invalid hostname format' }
+  }
   try {
     const content = readFileSync(HOSTS_PATH, 'utf-8')
     const newLine = `${ip}\t${hostname}`

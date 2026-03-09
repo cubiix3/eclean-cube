@@ -17,9 +17,16 @@ export function registerHardwareIPC(): void {
     if (hwSensorInterval) clearInterval(hwSensorInterval)
     hwSensorInterval = setInterval(async () => {
       try {
-        const data = await getDetailedSensors()
         const win = BrowserWindow.fromWebContents(event.sender)
-        if (win && !win.isDestroyed()) {
+        if (!win || win.isDestroyed()) {
+          if (hwSensorInterval) {
+            clearInterval(hwSensorInterval)
+            hwSensorInterval = null
+          }
+          return
+        }
+        const data = await getDetailedSensors()
+        if (!event.sender.isDestroyed()) {
           event.sender.send('hardware:sensorData', data)
         }
       } catch {

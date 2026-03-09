@@ -237,7 +237,7 @@ export async function shredFiles(
       const escapedPath = sanitizePath(filePath).replace(/'/g, "''")
       // Overwrite with random data 3 times then delete
       await runPowerShell(
-        `$p = '${escapedPath}'; if (Test-Path $p -PathType Leaf) { $s = (Get-Item $p).Length; $b = New-Object byte[] ([math]::Min($s, 1048576)); for ($i=0; $i -lt 3; $i++) { $f = [IO.File]::OpenWrite($p); $w = 0; while ($w -lt $s) { (New-Object Random).NextBytes($b); $c = [math]::Min($b.Length, $s - $w); $f.Write($b, 0, $c); $w += $c }; $f.Close() }; Remove-Item $p -Force } elseif (Test-Path $p) { Remove-Item $p -Recurse -Force }`
+        `$p = '${escapedPath}'; if (Test-Path $p -PathType Leaf) { $s = (Get-Item $p).Length; $b = New-Object byte[] ([math]::Min($s, 1048576)); for ($i=0; $i -lt 3; $i++) { $f = $null; try { $f = [IO.File]::OpenWrite($p); $w = 0; while ($w -lt $s) { (New-Object Random).NextBytes($b); $c = [math]::Min($b.Length, $s - $w); $f.Write($b, 0, $c); $w += $c } } finally { if ($f) { $f.Close() } } }; Remove-Item $p -Force } elseif (Test-Path $p) { Remove-Item $p -Recurse -Force }`
       )
       success.push(filePath)
     } catch (e: any) {

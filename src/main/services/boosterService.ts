@@ -355,7 +355,7 @@ export interface ScheduledTask {
 export async function getScheduledTasks(): Promise<ScheduledTask[]> {
   try {
     const result = await runPowerShell(
-      `Get-ScheduledTask | Where-Object { $_.TaskPath -notlike '\\Microsoft\\Windows\\*' -or $_.TaskName -notlike '*\\*' } | Select-Object -First 200 TaskName, TaskPath, @{N='State';E={$_.State.ToString()}}, @{N='Description';E={if($_.Description){$_.Description.Substring(0,[Math]::Min(200,$_.Description.Length))}else{''}}} | ConvertTo-Json -Depth 3`,
+      `Get-ScheduledTask | Where-Object { $_.TaskPath -notlike '\\Microsoft\\Windows\\*' } | Select-Object -First 200 TaskName, TaskPath, @{N='State';E={$_.State.ToString()}}, @{N='Description';E={if($_.Description){$_.Description.Substring(0,[Math]::Min(200,$_.Description.Length))}else{''}}} | ConvertTo-Json -Depth 3`,
       60000
     )
     if (!result || result.startsWith('ERROR:')) return []

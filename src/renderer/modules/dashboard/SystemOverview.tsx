@@ -74,7 +74,7 @@ export default function SystemOverview({ data, isLoading }: Props) {
       <div className="space-y-5">
         <UsageBar icon={<Cpu size={18} className="text-blue-400" />} label="CPU" sublabel={`${data.cpu.usage}%`} percent={data.cpu.usage} detail={data.cpu.temp ? `${data.cpu.temp}°C` : ''} />
         <UsageBar icon={<MemoryStick size={18} className="text-purple-400" />} label="RAM" sublabel={`${data.ram.used} / ${data.ram.total} GB`} percent={data.ram.percent} detail={`${data.ram.percent}%`} />
-        <UsageBar icon={<MonitorSpeaker size={18} className="text-green-400" />} label="GPU" sublabel={data.gpu.name.substring(0, 30)} percent={data.gpu.usage || 0} detail={data.gpu.temp ? `${data.gpu.temp}°C` : ''} />
+        <UsageBar icon={<MonitorSpeaker size={18} className="text-green-400" />} label="GPU" sublabel={(data.gpu.name || 'Unknown GPU').substring(0, 30)} percent={data.gpu.usage || 0} detail={data.gpu.temp ? `${data.gpu.temp}°C` : ''} />
         <UsageBar icon={<HardDrive size={18} className="text-amber-400" />} label="Disk" sublabel={`${data.disk.used} / ${data.disk.total} GB`} percent={data.disk.percent} detail={`${data.disk.percent}%`} />
       </div>
     </div>

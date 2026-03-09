@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useToastStore } from './toastStore'
 
 export type BoosterTab = 'startup' | 'services' | 'dns' | 'tasks' | 'boottime'
 
@@ -129,6 +130,11 @@ export const useBoosterStore = create<BoosterState>((set, get) => ({
           a.name === app.name ? { ...a, enabled: app.enabled } : a
         )
       }))
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Failed to toggle startup app',
+        message: app.name
+      })
     }
   },
 
@@ -158,6 +164,11 @@ export const useBoosterStore = create<BoosterState>((set, get) => ({
     } catch {
       // Refresh to get actual state
       get().fetchServices()
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Failed to change service',
+        message: name
+      })
     }
   },
 
@@ -195,7 +206,11 @@ export const useBoosterStore = create<BoosterState>((set, get) => ({
       // Refresh DNS configs
       await get().fetchDNS()
     } catch {
-      // ignore
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Failed to apply DNS',
+        message: presetName
+      })
     }
     set({ isApplyingDNS: false })
   },
@@ -253,6 +268,11 @@ export const useBoosterStore = create<BoosterState>((set, get) => ({
             : t
         )
       }))
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Failed to toggle task',
+        message: task.taskName
+      })
     }
   },
 

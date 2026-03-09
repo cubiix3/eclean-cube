@@ -4,6 +4,11 @@ import { checkForUpdates, downloadUpdate, installUpdate, initAutoUpdater } from 
 export function registerUpdaterIPC(): void {
   initAutoUpdater()
 
+  // Auto-check for updates 10 seconds after launch
+  setTimeout(() => {
+    checkForUpdates()
+  }, 10_000)
+
   ipcMain.handle('updater:check', async () => {
     await checkForUpdates()
   })

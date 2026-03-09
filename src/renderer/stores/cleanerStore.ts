@@ -153,8 +153,7 @@ export const useCleanerStore = create<CleanerState>((set, get) => ({
         title: `Cleaned ${selectedPaths.length} files (${mbFreed} MB freed)`
       })
       // Re-scan after cleaning
-      const store = get()
-      store.scanAll()
+      await get().scanAll()
     } catch (err: any) {
       useToastStore.getState().addToast({
         type: 'error',
@@ -188,7 +187,7 @@ export const useCleanerStore = create<CleanerState>((set, get) => ({
     set({ isFindingLarge: false })
   },
 
-  setSelectedDrive: (drive) => set({ selectedDrive: drive }),
+  setSelectedDrive: (drive) => set({ selectedDrive: drive, largeFiles: [] }),
 
   deleteLargeFile: async (filePath) => {
     try {
@@ -196,8 +195,16 @@ export const useCleanerStore = create<CleanerState>((set, get) => ({
       set((state) => ({
         largeFiles: state.largeFiles.filter((f) => f.path !== filePath)
       }))
+      useToastStore.getState().addToast({
+        type: 'success',
+        title: 'File deleted'
+      })
     } catch {
-      // silently ignore
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Failed to delete file',
+        message: filePath
+      })
     }
   },
 

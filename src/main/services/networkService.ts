@@ -37,7 +37,7 @@ export async function getConnectionInfo(): Promise<ConnectionInfo> {
 
   try {
     const connResult = await runPowerShell(
-      `(Get-NetTCPConnection -State Established -ErrorAction SilentlyContinue).Count`
+      `@(Get-NetTCPConnection -State Established -ErrorAction SilentlyContinue).Count`
     )
     connections = parseInt(connResult) || 0
   } catch {

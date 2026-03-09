@@ -16,9 +16,16 @@ export function registerNetworkIPC(): void {
     if (networkMonitorInterval) clearInterval(networkMonitorInterval)
     networkMonitorInterval = setInterval(async () => {
       try {
-        const stats = await getNetworkStats()
         const win = BrowserWindow.fromWebContents(event.sender)
-        if (win && !win.isDestroyed()) {
+        if (!win || win.isDestroyed()) {
+          if (networkMonitorInterval) {
+            clearInterval(networkMonitorInterval)
+            networkMonitorInterval = null
+          }
+          return
+        }
+        const stats = await getNetworkStats()
+        if (!event.sender.isDestroyed()) {
           event.sender.send('network:stats', stats)
         }
       } catch {

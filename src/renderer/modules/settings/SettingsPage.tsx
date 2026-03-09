@@ -33,7 +33,11 @@ import {
   Sun,
   Moon,
   Download,
-  Upload
+  Upload,
+  RefreshCw,
+  CheckCircle2,
+  Loader2,
+  ArrowDownCircle
 } from 'lucide-react'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useToastStore } from '@/stores/toastStore'
@@ -318,6 +322,135 @@ function AutomationSection() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+interface UpdateStatus {
+  status: 'idle' | 'checking' | 'available' | 'up-to-date' | 'downloading' | 'ready' | 'error'
+  version?: string
+  percent?: number
+  message?: string
+}
+
+function UpdateSection() {
+  const [update, setUpdate] = useState<UpdateStatus>({ status: 'idle' })
+  const addToast = useToastStore((s) => s.addToast)
+
+  useEffect(() => {
+    window.api.updater.onStatus((data: UpdateStatus) => {
+      setUpdate(data)
+    })
+    return () => {
+      // listener cleanup handled by onStatus (removeAllListeners before registering)
+    }
+  }, [])
+
+  async function handleCheck() {
+    setUpdate({ status: 'checking' })
+    try {
+      await window.api.updater.check()
+    } catch {
+      setUpdate({ status: 'error', message: 'Failed to check for updates' })
+    }
+  }
+
+  async function handleDownload() {
+    try {
+      await window.api.updater.download()
+    } catch {
+      addToast({ type: 'error', title: 'Download failed' })
+    }
+  }
+
+  function handleInstall() {
+    window.api.updater.install()
+  }
+
+  const statusConfig: Record<string, { icon: any; text: string; color: string }> = {
+    idle: { icon: RefreshCw, text: 'Click to check for updates', color: 'text-white/40' },
+    checking: { icon: Loader2, text: 'Checking for updates...', color: 'text-white/60' },
+    available: { icon: ArrowDownCircle, text: `Version ${update.version} available`, color: 'text-[var(--accent-color)]' },
+    'up-to-date': { icon: CheckCircle2, text: 'You\'re on the latest version', color: 'text-green-400' },
+    downloading: { icon: Loader2, text: `Downloading... ${update.percent ?? 0}%`, color: 'text-[var(--accent-color)]' },
+    ready: { icon: CheckCircle2, text: `Version ${update.version} ready to install`, color: 'text-green-400' },
+    error: { icon: AlertTriangle, text: update.message || 'Update check failed', color: 'text-red-400' }
+  }
+
+  const config = statusConfig[update.status] || statusConfig.idle
+  const StatusIcon = config.icon
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+    >
+      <div className="glass rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Download className="w-4 h-4 text-white/50" />
+          <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wider">Updates</h3>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center">
+              <StatusIcon className={`w-4.5 h-4.5 ${config.color} ${update.status === 'checking' || update.status === 'downloading' ? 'animate-spin' : ''}`} />
+            </div>
+            <div>
+              <p className="text-sm text-white">eclean v{__APP_VERSION__}</p>
+              <p className={`text-xs mt-0.5 ${config.color}`}>{config.text}</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {update.status === 'available' && (
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white transition-all cursor-pointer"
+                style={{ background: 'var(--accent-color)' }}
+              >
+                <Download className="w-3.5 h-3.5" />
+                Download
+              </button>
+            )}
+            {update.status === 'ready' && (
+              <button
+                onClick={handleInstall}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-500/20 border border-green-500/30 text-sm font-medium text-green-400 hover:bg-green-500/30 transition-all cursor-pointer"
+              >
+                <Rocket className="w-3.5 h-3.5" />
+                Install & Restart
+              </button>
+            )}
+            {(update.status === 'idle' || update.status === 'up-to-date' || update.status === 'error') && (
+              <button
+                onClick={handleCheck}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white/60 hover:bg-white/10 transition-all cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Check for Updates
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Download progress bar */}
+        {update.status === 'downloading' && (
+          <div className="mt-4">
+            <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: 'var(--accent-color)' }}
+                initial={{ width: '0%' }}
+                animate={{ width: `${update.percent ?? 0}%` }}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
+            <p className="text-[11px] text-white/30 mt-1.5 text-right">{update.percent ?? 0}%</p>
           </div>
         )}
       </div>
@@ -725,6 +858,9 @@ export default function SettingsPage() {
 
       {/* Automation */}
       <AutomationSection />
+
+      {/* Updates */}
+      <UpdateSection />
 
       {/* Keyboard Shortcuts */}
       <motion.div

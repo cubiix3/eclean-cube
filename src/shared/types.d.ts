@@ -746,6 +746,7 @@ interface UpdaterAPI {
 interface HealthFixAPI {
   run: () => Promise<HealthFixResult>
   onProgress: (callback: (data: { step: string; progress: number }) => void) => void
+  removeProgressListener: () => void
 }
 
 // ──────────────────────────────────────────────
@@ -800,6 +801,7 @@ declare global {
   interface Window {
     api: ElectronAPI
   }
+  const __APP_VERSION__: string
 }
 
 export {}

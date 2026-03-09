@@ -103,19 +103,19 @@ export default function SpeedTestPage() {
   const handleRun = async () => {
     setPhase('connecting')
     setResult(null)
+    // Simulate phase progression while the actual test runs
+    const phaseTimer1 = setTimeout(() => setPhase('download'), 1500)
+    const phaseTimer2 = setTimeout(() => setPhase('upload'), 5000)
     try {
-      // Simulate phase progression while the actual test runs
-      const phaseTimer1 = setTimeout(() => setPhase('download'), 1500)
-      const phaseTimer2 = setTimeout(() => setPhase('upload'), 5000)
-
       const data = await window.api.speedTest.run()
-      clearTimeout(phaseTimer1)
-      clearTimeout(phaseTimer2)
       setResult(data)
       setPhase('done')
     } catch (err) {
       console.error('Speed test failed:', err)
       setPhase('idle')
+    } finally {
+      clearTimeout(phaseTimer1)
+      clearTimeout(phaseTimer2)
     }
   }
 

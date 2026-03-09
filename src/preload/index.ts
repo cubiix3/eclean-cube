@@ -7,6 +7,8 @@ const api = {
     close: () => ipcRenderer.send('window:close'),
     isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
     onMaximizeChange: (callback: (maximized: boolean) => void) => {
+      ipcRenderer.removeAllListeners('window:maximized')
+      ipcRenderer.removeAllListeners('window:unmaximized')
       ipcRenderer.on('window:maximized', () => callback(true))
       ipcRenderer.on('window:unmaximized', () => callback(false))
     }
@@ -16,7 +18,7 @@ const api = {
     isAdmin: () => ipcRenderer.invoke('system:isAdmin'),
     startSensorStream: () => ipcRenderer.send('system:startSensorStream'),
     stopSensorStream: () => ipcRenderer.send('system:stopSensorStream'),
-    onSensorData: (callback: (data: any) => void) => {
+    onSensorData: (callback: (data: { timestamp: number; cpu: number; ram: number }) => void) => {
       ipcRenderer.on('system:sensorData', (_event, data) => callback(data))
     },
     removeSensorListener: () => {
@@ -27,7 +29,7 @@ const api = {
     getInfo: () => ipcRenderer.invoke('hardware:getInfo'),
     startSensors: () => ipcRenderer.send('hardware:startSensors'),
     stopSensors: () => ipcRenderer.send('hardware:stopSensors'),
-    onSensorData: (callback: (data: any) => void) => {
+    onSensorData: (callback: (data: DetailedSensors) => void) => {
       ipcRenderer.on('hardware:sensorData', (_event, data) => callback(data))
     },
     removeSensorListener: () => {
@@ -158,6 +160,7 @@ const api = {
   tray: {
     updateHealthScore: (score: number) => ipcRenderer.send('tray:updateHealthScore', score),
     onQuickClean: (callback: () => void) => {
+      ipcRenderer.removeAllListeners('tray:quickClean')
       ipcRenderer.on('tray:quickClean', () => callback())
     }
   },
@@ -196,12 +199,18 @@ const api = {
     browseDirectory: () => ipcRenderer.invoke('fileMonitor:browseDirectory'),
     onChange: (callback: (data: any) => void) => {
       ipcRenderer.on('fileMonitor:change', (_event, data) => callback(data))
+    },
+    removeChangeListener: () => {
+      ipcRenderer.removeAllListeners('fileMonitor:change')
     }
   },
   healthFix: {
     run: () => ipcRenderer.invoke('healthFix:run'),
     onProgress: (callback: (data: { step: string; progress: number }) => void) => {
       ipcRenderer.on('healthFix:progress', (_event, data) => callback(data))
+    },
+    removeProgressListener: () => {
+      ipcRenderer.removeAllListeners('healthFix:progress')
     }
   },
   logs: {
@@ -269,6 +278,7 @@ const api = {
     download: () => ipcRenderer.invoke('updater:download'),
     install: () => ipcRenderer.invoke('updater:install'),
     onStatus: (callback: (data: any) => void) => {
+      ipcRenderer.removeAllListeners('updater:status')
       ipcRenderer.on('updater:status', (_event, data) => callback(data))
     }
   },
@@ -277,9 +287,11 @@ const api = {
   },
   auto: {
     onCleanResult: (callback: (data: any) => void) => {
+      ipcRenderer.removeAllListeners('auto:cleanResult')
       ipcRenderer.on('auto:cleanResult', (_event, data) => callback(data))
     },
     onOptimizeResult: (callback: (data: any) => void) => {
+      ipcRenderer.removeAllListeners('auto:optimizeResult')
       ipcRenderer.on('auto:optimizeResult', (_event, data) => callback(data))
     }
   }

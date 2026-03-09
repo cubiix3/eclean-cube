@@ -9,6 +9,11 @@ directories:
 files:
   - out/**/*
 
+publish:
+  provider: github
+  owner: cubiix3
+  repo: eclean-cube
+
 win:
   icon: build/icon.ico
   target:

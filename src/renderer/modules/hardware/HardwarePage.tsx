@@ -52,12 +52,11 @@ export default function HardwarePage() {
   }
 
   useEffect(() => {
-    if (activeTab === 'sensors') {
-      window.api.hardware.startSensors()
-      window.api.hardware.onSensorData((data) => {
-        addSensorData(data)
-      })
-    }
+    if (activeTab !== 'sensors') return
+    window.api.hardware.startSensors()
+    window.api.hardware.onSensorData((data) => {
+      addSensorData(data)
+    })
     return () => {
       window.api.hardware.stopSensors()
       window.api.hardware.removeSensorListener()

@@ -59,6 +59,11 @@ export function executeRename(directory: string, renames: { original: string; re
 
   for (const r of renames) {
     try {
+      // Prevent directory traversal via ../ in renamed filenames
+      if (r.renamed.includes('..') || r.renamed.includes('/') || r.renamed.includes('\\')) {
+        errors.push(`${r.original}: Invalid filename (path traversal detected)`)
+        continue
+      }
       renameSync(join(directory, r.original), join(directory, r.renamed))
       renamed++
     } catch (e: any) {

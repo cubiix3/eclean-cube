@@ -143,6 +143,12 @@ export const useOptimizerStore = create<OptimizerState>((set, get) => ({
         for (const t of catTweaks) {
           allStatus[t.id] = false
         }
+        const catName = get().categories.find((c) => c.id === catId)?.name || catId
+        useToastStore.getState().addToast({
+          type: 'warning',
+          title: `Analysis failed for ${catName}`,
+          message: 'Could not check current status'
+        })
       }
       set((state) => ({
         analyzedCategories: [...state.analyzedCategories, catId],
@@ -246,7 +252,10 @@ export const useOptimizerStore = create<OptimizerState>((set, get) => ({
         }))
       }
     } catch {
-      // ignore
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Failed to revert tweak'
+      })
     }
     set({ isReverting: false })
     await get().fetchBackup()
@@ -262,8 +271,15 @@ export const useOptimizerStore = create<OptimizerState>((set, get) => ({
         newStatus[key] = false
       }
       set({ tweakStatus: newStatus })
+      useToastStore.getState().addToast({
+        type: 'success',
+        title: 'All tweaks reverted'
+      })
     } catch {
-      // ignore
+      useToastStore.getState().addToast({
+        type: 'error',
+        title: 'Failed to revert all tweaks'
+      })
     }
     set({ isReverting: false })
     await get().fetchBackup()

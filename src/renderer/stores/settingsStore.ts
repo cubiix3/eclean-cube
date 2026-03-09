@@ -83,10 +83,29 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   },
 
   updateSettings: async (partial) => {
+    // Optimistic update for instant UI feedback
+    set((state) => ({
+      settings: {
+        ...state.settings,
+        ...Object.fromEntries(
+          Object.entries(partial).map(([key, value]) => [
+            key,
+            typeof value === 'object' && value !== null
+              ? { ...(state.settings as any)[key], ...value }
+              : value
+          ])
+        )
+      } as AppSettings
+    }))
     try {
       const updated = await window.api.settings.update(partial)
       set({ settings: updated })
     } catch (err: any) {
+      // Revert on error by re-fetching
+      try {
+        const settings = await window.api.settings.get()
+        set({ settings })
+      } catch { /* keep optimistic state */ }
       useToastStore.getState().addToast({
         type: 'error',
         title: 'Failed to save settings',

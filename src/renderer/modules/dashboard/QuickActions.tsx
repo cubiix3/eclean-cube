@@ -35,10 +35,9 @@ export default function QuickActions() {
   const handleOneClickFix = async () => {
     setIsFixing(true)
     setFixProgress('Starting...')
-    const handler = (_event: any, data: any) => {
+    window.api.healthFix.onProgress((data) => {
       setFixProgress(data.step)
-    }
-    window.api.healthFix.onProgress(handler)
+    })
     try {
       const result = await window.api.healthFix.run()
       addToast({
@@ -49,6 +48,7 @@ export default function QuickActions() {
     } catch {
       addToast({ type: 'error', title: 'Health fix failed' })
     }
+    window.api.healthFix.removeProgressListener()
     setIsFixing(false)
     setFixProgress('')
   }
